@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="configuration.xsd">
+
+   <nbAbstractionLevels value="0"/>
+   <nbSearchedSolutions value="1"/>
+   <timeout value="-1"/>  
+   <recordSolutions value="no"/>
+   <displayMode value="-1"/> 
+   <conciseResults value="no"/>
+   <competition value="no"/>
+   <saveXMLOutputs dir=""/>
+   <XCSP version="2"/>
+   <saveProblemDescription intention="yes" value="no"/>
+   <retry value="yes"/>
+
+   <abstractionLevel value="0">
+      <problem>
+         <optim initBound="-1" limitBound="0" value="no"/>
+         <cache enabled="no"/>
+         <elements type="0"/>
+         <extension optim2D="no" type="2" validModel="0"/>
+         <convertBinaryConstraintsInExtension limit="4" value="yes"/> 
+         <shareSupportsOfBits value="yes"/>
+
+      </problem>	
+			
+      <solver class="IterativeSystematicSolver" localPrepro="no" mode="2" nbCores="-1"/>
+
+       <similarPreproAndSearchParameters value="yes"/>
+
+      <preprocessing enabled="yes">
+	    <propagationTechnique boundConsistency="no" class="ArcConsistency" futureLimitation="-1" spac="no" spaceLimitation="20" variant="1">
+
+	       <supportManager candidateAttentive="no" class="SupportManagerRm" stackSupports="no" variant="0"/>
+
+	       <revisionManager class="RevisionManager6" variant="1"/>
+
+	       <propagationSet class="NewPropagationSet">
+	          <revisionHeuristic class="Dom" limit="-1" optim="min"/> 
+	       </propagationSet>
+	
+          </propagationTechnique>
+	
+       </preprocessing>
+		
+       <search enabled="yes">
+
+          <backtrackingMode value="SBT"/>
+          <disconnectSingletons value="no"/>
+	  <restarts cutoff="10" factor="1.5" mode="1" nbRuns="1000"/>
+          <nogoodRecording incrementWeight="yes" mode="2"/>
+	  <solutionCounter mode="1"/>
+			
+          <variableHeuristic class="WDegOnDom" last="0" optim="max" resetPeriod="-1"> 
+	     <multiLevel operator="+" value="0"/>
+	     <randomization enabled="no" equiv="0"/>
+          </variableHeuristic>
+			
+          <valueHeuristic class="NbConflicts" optim="min" width="1"/>
+
+          <assignmentHeuristic class="BestGlobal" randVal="0" randVar="0" resetWeights="2" tabuListSize="15" weighting="yes"/>
+       </search>
+		
+   </abstractionLevel>
+
+</configuration>

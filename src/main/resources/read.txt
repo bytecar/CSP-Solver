@@ -1,0 +1,10 @@
+execute in a terminal:
+
+for a single instance: java -jar abscon109.jar <configurationFileName> 1 XSax <instanceFileName>
+for several instances: java -jar abscon109.jar <configurationFileName> <nbInstances> XSax <directoryFileName>
+Here, <configurationFileName> can be:
+
+mac.xml (used for CSP)
+esac.xml (used for CSP)
+pfc.xml (used for Max-CSP)
+epfc.xml (used for Max-CSP)
