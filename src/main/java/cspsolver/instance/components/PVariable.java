@@ -1,77 +1,49 @@
 package cspsolver.instance.components;
 
+import java.util.ArrayList;
 
-public class PVariable implements Cloneable{
+
+public class PVariable {
+	
 	private String name;
-
-	public PDomain domain;
-
-	public PConstraint[] constraint;
-
-	public PVariable[] neighbors;
-
-	public int numNeighbors;
-
-	public int numConstraints;
-
-	public int[] current_domain;
-
-	public int[] assignment;
-
+	private PDomain domain;
+	private ArrayList<PConstraint> constraints;
+	private ArrayList<PVariable> neighbors;
+	private PDomain current_domain;
+	
+	public PVariable(String name, PDomain initial_domain)	{
+		this.name = name;
+		this.setDomain(initial_domain);
+	}
 	public String getName() {
 		return name;
 	}
-
-	public Object clone(){
-		try{
-			PVariable cloned = (PVariable)super.clone();      
-			return cloned;
-		}
-		catch(CloneNotSupportedException e){
-			System.out.println(e);
-			return null;
-		}
+	public void setName(String name) {
+		this.name = name;
 	}
-
+	public  ArrayList<PConstraint> getConstraints() {
+		return constraints;
+	}
+	public void setConstraints(ArrayList<PConstraint> constraint) {
+		this.constraints = constraint;
+	}
+	public ArrayList<PVariable> getNeighbors() {
+		return neighbors;
+	}
+	public void setNeighbors(ArrayList<PVariable> neighbors) {
+		this.neighbors = neighbors;
+	}
+	public PDomain getCurrent_domain() {
+		return current_domain;
+	}
+	public void setCurrent_domain(PDomain current_domain) {
+		this.current_domain = current_domain;
+	}
 	public PDomain getDomain() {
 		return domain;
 	}
-
-	public PConstraint[] getConstraints() {
-		return constraint;
-	}
-
-	public PVariable[] getneighbors() {
-		return neighbors;
-	}
-
-	public PVariable(String name, PDomain domain) {
-		this.name = name;
+	public void setDomain(PDomain domain) {
 		this.domain = domain;
-
 	}
-
-	public String toString() {
-		return "  variable " + name + " with associated domain " + domain.getName();
-	}
-
-	/**
-	 * @return the current_domain
-	 */
-	 public int[] getCurrent_domain() {
-		 return current_domain;
-	 }
-
-	 public int currentdomlength()   {
-		 return current_domain.length;
-	 }
-	 /**
-	  * @return the assignment
-	  */
-	 public int[] getAssignment() {
-		 return assignment;
-	 }
-
-
 
 }

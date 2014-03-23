@@ -6,7 +6,6 @@ import cspsolver.instance.intension.PredicateManager;
 
 public class PIntensionConstraint extends PConstraint {
 	private PFunction function; // a predicate is a kind of function - so function may be a PPredicate
-
 	private String[] universalPostfixExpression;
 
 	public PFunction getFunction() {

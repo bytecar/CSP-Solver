@@ -407,7 +407,7 @@ public class InstanceChecker extends JFrame {
 		if (args.length == 1 && args[0].toLowerCase().equals("gui"))
 			new InstanceChecker();
 		else {
-			System.out.println("InstanceChecker " + InstanceParser.VERSION);
+			System.out.println("InstanceChecker " + InstanceParser.getVersion());
 			System.out.println("Usage 1 : java ... InstanceChecker gui");
 			System.out.println("Usage 2 : java ... InstanceChecker <instanceFileName> <mode> {<overwrite>}");
 			System.out.println();

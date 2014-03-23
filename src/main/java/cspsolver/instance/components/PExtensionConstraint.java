@@ -1,6 +1,7 @@
 package cspsolver.instance.components;
 
 
+
 public class PExtensionConstraint extends PConstraint {
 
 	private PRelation relation;

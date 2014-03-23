@@ -86,7 +86,7 @@ public class SolutionChecker {
 				System.exit(2);
 			}
 			try {
-				return loadSolution(solutionFileName, parser.getVariables().length);
+				return loadSolution(solutionFileName, parser.getVariables().size());
 			} catch (Exception e) {
 				System.err.println("PROBLEM \t When loading and/or parsing file " + solutionFileName + " " + e);
 				System.exit(2);
@@ -103,9 +103,9 @@ public class SolutionChecker {
 	 * Returns -1 if the solution is valid, the position of ther first invalid value otherwise
 	 */
 	public int isSolutionValid(int[] solution) {
-		assert parser.getVariables().length == solution.length;
+		assert parser.getVariables().size() == solution.length;
 		for (int i = 0; i < solution.length; i++)
-			if (!parser.getVariables()[i].getDomain().contains(solution[i]))
+			if (!parser.getVariables().get(i).getDomain().contains(solution[i]))
 				return i;
 		return -1;
 	}
@@ -119,7 +119,7 @@ public class SolutionChecker {
 		PVariable[] involvedVariables = constraint.getScope();
 		for (int i = 0; i < involvedVariables.length; i++) {
 			int position = 0;
-			while (involvedVariables[i] != parser.getVariables()[position])
+			while (involvedVariables[i] != parser.getVariables().get(position))
 				position++;
 			tuple[i] = solution[position];
 		}
@@ -127,8 +127,8 @@ public class SolutionChecker {
 	}
 
 	private void checkSolution(int[] solution) {
-		if (parser.getVariables().length != solution.length) {
-			System.err.println("PROBLEM \t The number of variables is " + parser.getVariables().length + " while the size of the solution is " + solution.length);
+		if (parser.getVariables().size() != solution.length) {
+			System.err.println("PROBLEM \t The number of variables is " + parser.getVariables().size() + " while the size of the solution is " + solution.length);
 			System.exit(2);
 		}
 
@@ -155,7 +155,7 @@ public class SolutionChecker {
 	public SolutionChecker(String instanceFileName) {
 		dealWithInstanceFileName(instanceFileName);
 		String s0 = "satisfiable " + parser.getSatisfiable() + "  minViolatedConstraints " + parser.getMinViolatedConstraints();
-		String s1 = "\t nbVariables " + parser.getVariables().length + "  nbConstraints " + parser.getMapOfConstraints().size();
+		String s1 = "\t nbVariables " + parser.getVariables().size() + "  nbConstraints " + parser.getMapOfConstraints().size();
 		String s2 = "\t maxConstraintArity " + parser.getMaxConstraintArity() + "  nbExtensionConstraints " + parser.getNbExtensionConstraints() + "  nbIntensionConstraints "
 				+ parser.getNbIntensionConstraints() + "  nbGlobalConstraints " + parser.getNbGlobalConstraints();
 		System.out.println(s0 + s1 + s2);
@@ -191,7 +191,7 @@ public class SolutionChecker {
 				new SolutionChecker(args[0], solution);
 			} else {
 				System.out.println();
-				System.out.println("SolutionChecker " + InstanceParser.VERSION);
+				System.out.println("SolutionChecker " + InstanceParser.getVersion());
 				System.out.println("Usage 1: java ... SolutionChecker <instanceFileName>");
 				System.out.println("Usage 2: java ... SolutionChecker <instanceFileName> <solutionFileName>");
 				System.out.println("Usage 3: java ... SolutionChecker <instanceFileName> <solution>");

@@ -3,25 +3,23 @@ package cspsolver.instance.components;
 import java.util.Arrays;
 
 import cspsolver.instance.InstanceTokens;
-import java.util.Map;
 
 public class PDomain {
+	
 	private String name;
-
-	public int[] values;
-
-        public Map<String,String> adjmat;
-
+	private int[] values;
+	
 	public String getName() {
 		return name;
 	}
-
+	
 	public int[] getValues() {
 		return values;
 	}
 
 	public int getMaxAbsoluteValue() {
-		return Math.max(Math.abs(values[0]), Math.abs(values[values.length - 1]));
+		return Math.max(Math.abs(values[0]),
+				Math.abs(values[values.length - 1]));
 	}
 
 	public PDomain(String name, int[] values) {
@@ -49,14 +47,17 @@ public class PDomain {
 			int currentValue = values[i];
 			if (currentValue != previousValue + 1) {
 				if (startedInterval) {
-					sb.append(previousValue + InstanceTokens.DISCRETE_INTERVAL_END);
+					sb.append(previousValue
+							+ InstanceTokens.DISCRETE_INTERVAL_END);
 					startedInterval = false;
 				} else
 					sb.append(previousValue);
 				sb.append(InstanceTokens.VALUE_SEPARATOR);
 			} else {
 				if (!startedInterval) {
-					sb.append(InstanceTokens.DISCRETE_INTERVAL_START + previousValue + InstanceTokens.DISCRETE_INTERVAL_SEPARATOR);
+					sb.append(InstanceTokens.DISCRETE_INTERVAL_START
+							+ previousValue
+							+ InstanceTokens.DISCRETE_INTERVAL_SEPARATOR);
 					startedInterval = true;
 				}
 			}
@@ -68,12 +69,12 @@ public class PDomain {
 			sb.append(previousValue);
 		return sb.toString();
 	}
-	
+
 	public boolean controlValueRanging(int min, int max) {
 		for (int v : values)
 			if (v < min || v > max)
 				return false;
 		return true;
 	}
-	
+
 }

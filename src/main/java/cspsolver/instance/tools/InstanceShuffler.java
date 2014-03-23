@@ -45,7 +45,7 @@ public class InstanceShuffler {
 
 	public static void main(String[] args) throws Exception {
 		if (args.length != 3) {
-			System.out.println("InstanceShuffler " + InstanceParser.VERSION);
+			System.out.println("InstanceShuffler " + InstanceParser.getVersion());
 			System.out.println("Usage: java ... InstanceShuffler <instanceFileName> <seed> <mode>");
 			System.out.println();
 			System.out.println("  <instanceFileName> must be the name of a file which contains the representation of a CSP instance in format XCSP 2.0");

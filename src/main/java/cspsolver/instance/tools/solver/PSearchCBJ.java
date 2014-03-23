@@ -43,7 +43,7 @@ public class PSearchCBJ extends PSearch	{
 					ptmp.add(p);
 				}
 				//System.out.println(ptmp.size());
-				conf_set.put(i, ptmp);
+				getConf_set().put(i, ptmp);
 				//System.out.println("Soultions"+Solutions+"\n i"+i);
 				//System.out.println("Solution: ");
 
@@ -82,8 +82,8 @@ public class PSearchCBJ extends PSearch	{
 		//System.out.println("Backtrack");
 		(state.bt)++;
 		int h;
-		if (!conf_set.get(i).isEmpty()) {
-			h = Collections.max(conf_set.get(i));
+		if (!getConf_set().get(i).isEmpty()) {
+			h = Collections.max(getConf_set().get(i));
 		} else {
 			h = 0;
 			return h;
@@ -94,17 +94,17 @@ public class PSearchCBJ extends PSearch	{
 		//System.out.println("i: "+i+"h"+h+"\n ");
 		//System.out.println("h: conf_Set(h)"+!conf_set.get(h).isEmpty()+"i: conf_Set(i)"+!conf_set.get(i).isEmpty());
 
-		conf_set.put(h, union_al(conf_set.get(h), conf_set.get(i)));
+		getConf_set().put(h, union_al(getConf_set().get(h), getConf_set().get(i)));
 
-		temp = conf_set.get(h);
+		temp = getConf_set().get(h);
 		temp.remove(temp.indexOf(h));
-		conf_set.put(h, temp);
+		getConf_set().put(h, temp);
 
 		for (int j = h + 1; j <= i; j++) {
-			temp = conf_set.get(j);
+			temp = getConf_set().get(j);
 			temp.clear();
 			//temp.add(0);
-			conf_set.put(j, temp);
+			getConf_set().put(j, temp);
 
 			this.current_path[j].current_domain = new int[this.current_domains[j].length];
 			//System.arraycopy(this.current_path[j].getDomain().getValues(), 0, this.current_path[j].current_domain, 0, this.current_path[j].getDomain().getValues().length);
@@ -144,11 +144,11 @@ public class PSearchCBJ extends PSearch	{
 
 				if (!this.isConsistent()) {
 
-					temp = conf_set.get(i);
+					temp = getConf_set().get(i);
 
 					if (!temp.contains(h)) {
 						temp.add(h);
-						conf_set.put(i, temp);
+						getConf_set().put(i, temp);
 					}
 
 					this.current_path[i].current_domain = remove(this.current_path[i].current_domain, this.current_path[i].current_domain[k]);

@@ -6,7 +6,7 @@ import cspsolver.instance.tools.InstanceParser;
 
 import java.util.*;
 
-public class OHeuristics {
+public class OrderingHeuristics {
 
 	private Map<String, String> mapOfDomVar;
 	private Map<String, String> mapOfDDRVar;
@@ -14,23 +14,22 @@ public class OHeuristics {
 	PInstance csp;
 	InstanceParser parser;
 	
-	OHeuristics(String alg,PInstance cspInstance, InstanceParser parserInstance)	{
+	OrderingHeuristics(String variableOrderingHeuristics,String valueOrderingHeuristics,PInstance cspInstance)	{
 		this.csp = cspInstance;
-		this.parser = parserInstance;
 		
-		if(alg.equals("LX"))	{
+		if(variableOrderingHeuristics.equals("LX"))	{
 			lexicomp();
 		}
-		else if(alg.equals("LD"))	{
+		else if(variableOrderingHeuristics.equals("LD"))	{
 			mindomain();
 		}
-		else if(alg.equals("W"))	{
+		else if(variableOrderingHeuristics.equals("W"))	{
 			minWidth();
 		}
-		else if(alg.equals("DEG"))	{
+		else if(variableOrderingHeuristics.equals("DEG"))	{
 			maxdegree();
 		}
-		else if (alg.equals("DD"))	{
+		else if (variableOrderingHeuristics.equals("DD"))	{
 			minDDR();
 		}
 	}

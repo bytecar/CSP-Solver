@@ -1,15 +1,20 @@
 package cspsolver.instance.tools;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import cspsolver.instance.InstanceTokens;
+import cspsolver.instance.PredicateTokens.RelationalOperator;
 import cspsolver.instance.Toolkit;
 import cspsolver.instance.XMLManager;
-import cspsolver.instance.PredicateTokens.RelationalOperator;
 import cspsolver.instance.components.PAllDifferent;
 import cspsolver.instance.components.PConstraint;
 import cspsolver.instance.components.PCumulative;
@@ -17,7 +22,6 @@ import cspsolver.instance.components.PDomain;
 import cspsolver.instance.components.PElement;
 import cspsolver.instance.components.PExtensionConstraint;
 import cspsolver.instance.components.PFunction;
-import cspsolver.instance.components.PInstance;
 import cspsolver.instance.components.PIntensionConstraint;
 import cspsolver.instance.components.PPredicate;
 import cspsolver.instance.components.PRelation;
@@ -28,40 +32,158 @@ import cspsolver.instance.components.Task;
 
 public class InstanceParser {
 
-    public static final String VERSION = "Version 0.314, February 2011 -By Kartik Vedalaveni (Parser adapted from abscon) ";
-    public Document document;
-    public String type;
-    public String format;
-    public int maxConstraintArity;
-    public Map<String, PDomain> mapOfDomains;
-    public Map<String, PVariable> mapOfVariables;
-    public Map<String, PRelation> mapOfRelations;
-    public Map<String, PFunction> mapOfFunctions;
-    public Map<String, PPredicate> mapOfPredicates;
-    public Map<String, PConstraint> mapOfConstraints;
-    public PVariable[] variables;
-    public int nbVars;
-    public int nbCons;
-    public PConstraint[] constraints;
-    public PRelation[] relations;
-    public PInstance csp;
-    public String tuples_type;
-    public int domain_size;
-    public String constraint_reference;
-    public int nbExtensionConstraints;
-    public int nbSoftIntensionConstraints;
-    public int nbIntensionConstraints;
-    public int nbGlobalConstraints;
-    public int Solutions;
-
+    private static final String VERSION = "Version 0.5.1, March 2014 - By Kartik Vedalaveni (XCSP 2.0 Parser adapted from abscon) ";
+    private Document document;
+    private String type;
+    private String format;
+    private int maxConstraintArity;
+    private Map<String, PDomain> mapOfDomains;
+    private Map<String, PVariable> mapOfVariables;
+    private Map<String, PRelation> mapOfRelations;
+    private Map<String, PFunction> mapOfFunctions;
+    private Map<String, PPredicate> mapOfPredicates;
+    private Map<String, PConstraint> mapOfConstraints;
+    private String tuples_type;
+    private ArrayList<PVariable> variables;
+    private int nbVars;
+    private int nbCons;
+    private ArrayList<PConstraint> constraints;
+    private ArrayList<PRelation> relations;
+	private String constraint_reference;
+    private int nbExtensionConstraints;
+    private int nbIntensionConstraints;
+    private int nbGlobalConstraints;
     private String satisfiable;
-    private String minViolatedConstraints;
+    private String minViolatedConstraints;    
+    public Document getDocument() {
+		return document;
+	}
+
+	public void setDocument(Document document) {
+		this.document = document;
+	}
+
+	public String getFormat() {
+		return format;
+	}
+
+	public void setFormat(String format) {
+		this.format = format;
+	}
+
+	public Map<String, PDomain> getMapOfDomains() {
+		return mapOfDomains;
+	}
+
+	public void setMapOfDomains(Map<String, PDomain> mapOfDomains) {
+		this.mapOfDomains = mapOfDomains;
+	}
+
+	public Map<String, PVariable> getMapOfVariables() {
+		return mapOfVariables;
+	}
+
+	public void setMapOfVariables(Map<String, PVariable> mapOfVariables) {
+		this.mapOfVariables = mapOfVariables;
+	}
+
+	public Map<String, PRelation> getMapOfRelations() {
+		return mapOfRelations;
+	}
+
+	public void setMapOfRelations(Map<String, PRelation> mapOfRelations) {
+		this.mapOfRelations = mapOfRelations;
+	}
+
+	public Map<String, PFunction> getMapOfFunctions() {
+		return mapOfFunctions;
+	}
+
+	public void setMapOfFunctions(Map<String, PFunction> mapOfFunctions) {
+		this.mapOfFunctions = mapOfFunctions;
+	}
+
+	public Map<String, PPredicate> getMapOfPredicates() {
+		return mapOfPredicates;
+	}
+
+	public void setMapOfPredicates(Map<String, PPredicate> mapOfPredicates) {
+		this.mapOfPredicates = mapOfPredicates;
+	}
+
+	public ArrayList<PConstraint> getConstraints() {
+		return constraints;
+	}
+
+	public void setConstraints(ArrayList<PConstraint> constraints) {
+		this.constraints = constraints;
+	}
+
+	public ArrayList<PRelation> getRelations() {
+		return relations;
+	}
+
+	public void setRelations(ArrayList<PRelation> relations) {
+		this.relations = relations;
+	}
+
+	public String getConstraint_reference() {
+		return constraint_reference;
+	}
+
+	public void setConstraint_reference(String constraint_reference) {
+		this.constraint_reference = constraint_reference;
+	}
+
+	public boolean isDisplayInstance() {
+		return displayInstance;
+	}
+
+	public void setDisplayInstance(boolean displayInstance) {
+		this.displayInstance = displayInstance;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public void setMaxConstraintArity(int maxConstraintArity) {
+		this.maxConstraintArity = maxConstraintArity;
+	}
+
+	public void setMapOfConstraints(Map<String, PConstraint> mapOfConstraints) {
+		this.mapOfConstraints = mapOfConstraints;
+	}
+
+	public void setVariables(ArrayList<PVariable> variables) {
+		this.variables = variables;
+	}
+
+	public void setNbExtensionConstraints(int nbExtensionConstraints) {
+		this.nbExtensionConstraints = nbExtensionConstraints;
+	}
+
+	public void setNbIntensionConstraints(int nbIntensionConstraints) {
+		this.nbIntensionConstraints = nbIntensionConstraints;
+	}
+
+	public void setNbGlobalConstraints(int nbGlobalConstraints) {
+		this.nbGlobalConstraints = nbGlobalConstraints;
+	}
+
+	public void setSatisfiable(String satisfiable) {
+		this.satisfiable = satisfiable;
+	}
+
+	public void setMinViolatedConstraints(String minViolatedConstraints) {
+		this.minViolatedConstraints = minViolatedConstraints;
+	}
 
     public String getType() {
         return type;
     }
 
-    public PVariable[] getVariables() {
+    public ArrayList<PVariable> getVariables() {
         return variables;
     }
 
@@ -141,7 +263,6 @@ public class InstanceParser {
     private PDomain parseDomain(Element domainElement) {
         String name = domainElement.getAttribute(InstanceTokens.NAME);
         int nbValues = Integer.parseInt(domainElement.getAttribute(InstanceTokens.NB_VALUES));
-        domain_size = nbValues;
         int[] values = parseDomainValues(nbValues, domainElement.getTextContent());
         if (nbValues != values.length) {
             throw new RuntimeException();
@@ -175,17 +296,17 @@ public class InstanceParser {
     private void parseVariables(Element variablesElement) {
         mapOfVariables = new HashMap<String, PVariable>();
         int nbVariables = Integer.parseInt(variablesElement.getAttribute(InstanceTokens.NB_VARIABLES));
-        nbVars = nbVariables;
+        setNbVars(nbVariables);
         if (displayInstance) {
             System.out.println("=> " + nbVariables + " variables");
         }
 
-        variables = new PVariable[nbVariables];
+        variables = new ArrayList<PVariable>();
         NodeList nodeList = variablesElement.getElementsByTagName(InstanceTokens.VARIABLE);
         for (int i = 0; i < nodeList.getLength(); i++) {
             PVariable variable = parseVariable((Element) nodeList.item(i));
             mapOfVariables.put(variable.getName(), variable);
-            variables[i] = variable;
+            variables.add(variable);
             if (displayInstance) {
                 System.out.println(variable);
             }
@@ -250,11 +371,11 @@ public class InstanceParser {
             System.out.println("=> " + nbRelations + " relations");
         }
 
-        relations = new PRelation[nbRelations];
+        relations = new ArrayList<PRelation>();
         NodeList nodeList = relationsElement.getElementsByTagName(InstanceTokens.RELATION);
         for (int i = 0; i < nodeList.getLength(); i++) {
             PRelation relation = parseRelation((Element) nodeList.item(i));
-            relations[i] = relation;
+            relations.add(relation);
             mapOfRelations.put(relation.getName(), relation);
             if (displayInstance) {
                 System.out.println(relation);
@@ -437,7 +558,6 @@ public class InstanceParser {
 
         if (mapOfFunctions.containsKey(reference)) {
             Element parameters = (Element) constraintElement.getElementsByTagName(InstanceTokens.PARAMETERS).item(0);
-            nbSoftIntensionConstraints++;
             return new PIntensionConstraint(name, scope, mapOfFunctions.get(reference), parameters.getTextContent());
         }
 
@@ -471,8 +591,8 @@ public class InstanceParser {
     private void parseConstraints(Element constraintsElement) {
         mapOfConstraints = new HashMap<String, PConstraint>();
         int nbConstraints = Integer.parseInt(constraintsElement.getAttribute(InstanceTokens.NB_CONSTRAINTS));
-        nbCons = nbConstraints;
-        constraints = new PConstraint[nbConstraints];
+        setNbCons(nbConstraints);
+        constraints = new ArrayList<PConstraint>();
         if (displayInstance) {
             System.out.print("=> " + nbConstraints + " constraints");
             if (type.equals(InstanceTokens.WCSP)) {
@@ -489,27 +609,20 @@ public class InstanceParser {
         for (int i = 0; i < nodeList.getLength(); i++) {
             PConstraint constraint = parseConstraint((Element) nodeList.item(i));
 
-            //  String itmp="intension";
-            //  String etmp="extension";
-
-            //  itmp+=tuples_type;
-            //  etmp+=tuples_type;
-
-            constraint.reference = constraint_reference;
+            constraint.setReference(constraint_reference); 
 
             if (nbExtensionConstraints == 0) {
-                constraint.type = "Intension";
-                constraint.relation = mapOfRelations.get(constraint.reference);
+            	constraint.setType("Intension");
+                //def = new PDefinition("Intension", mapOfRelations.get(constraint.getReference()));
             } else {
-                constraint.type = tuples_type;
-                constraint.expression = mapOfPredicates.get(constraint.reference);
+				constraint.setType(tuples_type);
+            	//def = new PDefinition(tuples_type, mapOfPredicates.get(constraint.getReference()));
             }
-
             mapOfConstraints.put(constraint.getName(), constraint);
             if (displayInstance) {
                 System.out.println(constraint);
             }
-            constraints[i] = constraint;
+            constraints.add(constraint);
         }
 
     }
@@ -524,5 +637,25 @@ public class InstanceParser {
         parsePredicates((Element) document.getDocumentElement().getElementsByTagName(InstanceTokens.PREDICATES).item(0));
         parseConstraints((Element) document.getDocumentElement().getElementsByTagName(InstanceTokens.CONSTRAINTS).item(0));
     }
+
+	public static String getVersion() {
+		return VERSION;
+	}
+
+	public int getNbVars() {
+		return nbVars;
+	}
+
+	public void setNbVars(int nbVars) {
+		this.nbVars = nbVars;
+	}
+
+	public int getNbCons() {
+		return nbCons;
+	}
+
+	public void setNbCons(int nbCons) {
+		this.nbCons = nbCons;
+	}
 }
     

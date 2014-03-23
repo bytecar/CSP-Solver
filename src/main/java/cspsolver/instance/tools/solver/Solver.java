@@ -2,6 +2,7 @@ package cspsolver.instance.tools.solver;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Stack;
 
@@ -12,101 +13,66 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
 import cspsolver.instance.components.PConstraint;
+import cspsolver.instance.components.PExtensionConstraint;
 import cspsolver.instance.components.PInstance;
+import cspsolver.instance.components.PIntensionConstraint;
 import cspsolver.instance.components.PVariable;
 import cspsolver.instance.tools.InstanceParser;
-
 
 public class Solver {
 
 	private PInstance csp;
-	private int nbCons;
-	private int nbVars;
 	private InstanceParser parser;
 	private PSearch btSearch;
+
+	public PInstance getCsp() {
+		return csp;
+	}
+
+	public void setCsp(PInstance csp) {
+		this.csp = csp;
+	}
+
+	public InstanceParser getParser() {
+		return parser;
+	}
+
+	public void setParser(InstanceParser parser) {
+		this.parser = parser;
+	}
+
+	public PSearch getBtSearch() {
+		return btSearch;
+	}
+
+	public void setBtSearch(PSearch btSearch) {
+		this.btSearch = btSearch;
+	}
 
 	// Update the neighbors and constraints information
 	public void updatevars() {
 
+		if (parser.getNbGlobalConstraints() > 0) {
+			System.err.println("Global Constraints are not supported, Only Binary Constraints are supported");
+			System.exit(1);
+		}
 		csp = new PInstance();
-		// csp.vars=new PVariable[nbVars];
-		// csp.constraints=new PConstraint[nbCons];
-		csp.vars = parser.variables;
-		csp.constraints = parser.constraints;
-		// System.arraycopy(variables, 0, csp.vars, 0, nbVars);
-		// System.arraycopy(constraints, 0, csp.constraints, 0, nbCons);
-		nbCons = csp.constraints.length;
-		nbVars = csp.vars.length;
-		String varname;
-		PVariable[] scope_vars;
+		csp.setVariables(parser.getVariables());
+		csp.setConstraints(parser.getConstraints());
 
-		for (int k = 0; k < nbVars; k++) {
-			csp.vars[k].neighbors = new PVariable[nbVars];
-			csp.vars[k].constraint = new PConstraint[nbCons];
+		for (PVariable variable : csp.getVariables()) {
+			variable.setNeighbors(new ArrayList<PVariable>());
+			variable.setConstraints(new ArrayList<PConstraint>());
 
-			int neighbors_idx = 0;
-			int constraint_idx = 0;
-
-			for (int j = 0; j < nbCons; j++) {
-				// Update relation kind
-				if ((csp.constraints[j].type.equals("conflicts") || csp.constraints[j].type
-						.equals("supports"))) {
-					csp.constraints[j].relation = parser.mapOfRelations
-							.get(csp.constraints[j].reference);
-				} else {
-					if (csp.constraints[j].reference
-							.equals("global:allDifferent")) {
-						System.out
-								.println("Global Constraints not supported: Only Binary");
-						System.exit(1);
-					} else {
-						csp.constraints[j].expression = parser.mapOfPredicates
-								.get(csp.constraints[j].reference);
-					}
+			for (PConstraint constraint : csp.getConstraints()) {
+				// Writing for binary constraints.
+				if (variable.getName().equals(constraint.getScope()[0].getName())) {
+					variable.getNeighbors().add(constraint.getScope()[0]);
+					variable.getConstraints().add(constraint);
+				} else if (variable.getName().equals(constraint.getScope()[1].getName())) {
+					variable.getNeighbors().add(constraint.getScope()[1]);
+					variable.getConstraints().add(constraint);
 				}
-
-				varname = csp.vars[k].getName();
-				// scope_vars=new PVariable[scopelen];
-				scope_vars = csp.constraints[j].getScope();
-				// System.out.print("\t"+scope_vars[1].getName()+"\t");
-				int temp = 0;
-
-				if (varname.equals(scope_vars[0].getName())) {
-					temp = 1;
-				}
-				// for(int i=0;i<scopelen;i++) {
-				if (scope_vars.length == 2) {
-					if (varname.equals(scope_vars[0].getName())
-							|| varname.equals(scope_vars[1].getName())) {
-
-						csp.vars[k].constraint[constraint_idx] = csp.constraints[j];
-						constraint_idx++;
-
-						if (temp == 0) {
-							csp.vars[k].neighbors[neighbors_idx] = scope_vars[0];
-							neighbors_idx++;
-						} else {
-							csp.vars[k].neighbors[neighbors_idx] = scope_vars[1];
-							neighbors_idx++;
-							// }
-						}
-					} else {
-						if (temp == 1) {
-							csp.vars[k].neighbors[neighbors_idx] = scope_vars[0];
-							neighbors_idx++;
-						}
-					}
-
-				} else {
-					if (varname.equals(scope_vars[0].getName())) {
-						csp.vars[k].constraint[constraint_idx] = csp.constraints[j];
-						constraint_idx++;
-					}
-				}
-				csp.vars[k].numNeighbors = neighbors_idx;
-				csp.vars[k].numConstraints = constraint_idx;
-
-				// System.out.println(csp.vars[k].numNeighbors+"<- neighbor constraint->"+csp.vars[k].numConstraints);
 			}
 		}
 	}
@@ -114,16 +80,16 @@ public class Solver {
 	public void debug() {
 
 		System.out.println();
-		for (int i = 0; i < nbVars; i++) {
-			System.out.println("Variable: " + csp.vars[i].getName() + "");
+		for (PVariable variable : csp.getVariables()) {
+			System.out.println("Variable: " + variable.getName() + "");
 
 			System.out.print("VarConstraints: ");
-			for (int k = 0; k < csp.vars[i].numConstraints; k++) {
-				System.out.print(" " + csp.vars[i].constraint[k].getName());
+			for (PConstraint constraint : variable.getConstraints()) {
+				System.out.print(" " + constraint.getName());
 			}
 
 			System.out.println();
-			int[] values = csp.vars[i].getDomain().getValues();
+			int[] values = variable.getDomain().getValues();
 			System.out.print("Domain: ");
 
 			for (int j = 0; j < values.length; j++) {
@@ -132,31 +98,26 @@ public class Solver {
 
 			System.out.println();
 			System.out.print("Neighbors: ");
-			for (int k = 0; k < csp.vars[i].numNeighbors; k++) {
-				System.out.print(" " + csp.vars[i].neighbors[k].getName());
+			for (PVariable var : variable.getNeighbors()) {
+				System.out.print(" " + var.getName());
 			}
 
 			System.out.println("\n");
 		}
 
-		for (int i = 0; i < nbCons; i++) {
-			System.out.println("Constraint: " + csp.constraints[i].getName()
-					+ "");
+		for (PConstraint constraint : csp.getConstraints()) {
+			System.out.println("Constraint: " + constraint.getName() + "");
 
 			System.out.print("Scope: ");
-			for (int k = 0; k < csp.constraints[i].getArity(); k++) {
-				System.out.print(" " + csp.constraints[i].scope[k].getName());
+			for (int k = 0; k < constraint.getArity(); k++) {
+				System.out.print(" " + constraint.getScope()[k].getName());
 			}
 
-			if ((csp.constraints[i].type.equals("conflicts") || csp.constraints[i].type
-					.equals("supports"))) {
-				System.out.println();
-				System.out.println("Tuples: "
-						+ csp.constraints[i].relation.toStrTuples());
+			if ((constraint.getType().equals("conflicts") || constraint.getType().equals("supports"))) {
+				System.out.println("\nTuples: "
+						+ ((PExtensionConstraint) constraint).getRelation().getStringListOfTuples());
 			} else {
-				System.out.println();
-				System.out.println("Function: "
-						+ csp.constraints[i].expression.toStrFunc());
+				System.out.println("\nFunction: " + ((PIntensionConstraint) constraint).getFunction().toString());
 			}
 			System.out.println("\n");
 
@@ -166,21 +127,18 @@ public class Solver {
 
 	public void init_btSearch(PState state) {
 
-		btSearch.setCspsolve(csp);
-		btSearch.current_path = new PVariable[nbVars + 1];
-		btSearch.current_domains = new int[nbVars + 1][];
+		btSearch.setProblem(csp);
+		btSearch.setCurrentPath(new ArrayList<PVariable>());
+		btSearch.setCurrent_domains(new int[csp.getVariables().size() + 1][]);
 
-		btSearch.future_fc = (Stack<Integer>[]) Array.newInstance(Stack.class,
-				nbVars + 1);
-		btSearch.past_fc = (Stack<Integer>[]) Array.newInstance(Stack.class,
-				nbVars + 1);
-		btSearch.reductions = (Stack<Stack<Integer>>[]) Array.newInstance(
-				Stack.class, nbVars + 1);
-		btSearch.conf_set = new HashMap<Integer, ArrayList<Integer>>();
+		btSearch.setFutureForwardChecks(new ArrayList<Stack<Integer>>());
+		btSearch.setPastForwardChecks(new ArrayList<Stack<Integer>>());
+		btSearch.setReductions(new ArrayList<Stack<Stack<Integer>>>());
+		btSearch.setConf_set(new HashMap<Integer, ArrayList<Integer>>());
 
-		for (int i = 0; i < nbVars; i++) {
-			btSearch.current_path[i + 1] = btSearch.cspsolve.vars[i];
-			btSearch.assignment = new int[nbVars + 1];
+		for (PVariable variable:csp.getVariables()) {
+			btSearch.getCurrentPath().add(variable);
+			btSearch.setAssignment(new ArrayList<Integer>());
 
 			btSearch.future_fc[i + 1] = new Stack<Integer>();
 			btSearch.past_fc[i + 1] = new Stack<Integer>();
@@ -188,27 +146,26 @@ public class Solver {
 			btSearch.past_fc[i + 1].push(0);
 
 			ArrayList<Integer> cset = new ArrayList<Integer>();
-			btSearch.conf_set.put((i + 1), cset);
+			btSearch.getConf_set().put((i + 1), cset);
 
 			btSearch.current_domains[i + 1] = new int[btSearch.cspsolve.vars[i].domain.values.length];
-			System.arraycopy(btSearch.cspsolve.vars[i].domain.values, 0,
-					btSearch.current_domains[i + 1], 0,
+			System.arraycopy(btSearch.cspsolve.vars[i].domain.values, 0, btSearch.current_domains[i + 1], 0,
 					btSearch.cspsolve.vars[i].domain.values.length);
 
 			btSearch.current_path[0] = btSearch.cspsolve.vars[0];
 			btSearch.unaryC(state, i + 1);
 			btSearch.current_path[i + 1].current_domain = new int[btSearch.current_domains[i + 1].length];
-			System.arraycopy(btSearch.current_domains[i + 1], 0,
-					btSearch.current_path[i + 1].current_domain, 0,
+			System.arraycopy(btSearch.current_domains[i + 1], 0, btSearch.current_path[i + 1].current_domain, 0,
 					btSearch.current_domains[i + 1].length);
 
 		}
 
 	}
 
-	void init_algorithm(String alg, PState state, String printing,
-			String numOfSolutions) {
+	void init_algorithm(PState state) {
 
+		String alg = state.getSearch();
+		
 		if (alg.equalsIgnoreCase("CBJ")) {
 			btSearch = new PSearchCBJ();
 		} else if (alg.equalsIgnoreCase("FCCBJ")) {
@@ -218,26 +175,33 @@ public class Solver {
 		} else if (alg.equalsIgnoreCase("FC")) {
 			btSearch = new PSearchFC();
 		}
+		
+		timer computetime = new timer();
+		computetime.Start();
 		this.init_btSearch(state);
-		btSearch.bcssp("unknown", state, printing, numOfSolutions);
-		state.OutString();
+		btSearch.bcssp("unknown", state.getPrintsolutions(), state.getFindsolutions());
+		computetime.Stop();
+		state.setCpu_time(computetime.ElapsedTime()*1000);
+		state.toString();
 		System.out.println("\nSolutions:" + btSearch.Solutions);
 	}
 
 	public static void main(String[] args) {
 
 		CommandLineParser parser = new GnuParser();
-		String search = null, heuristics = null, inputfile = null, printsolutions = null, solution = null;
+		String search = null, heuristics = null, inputfile = null, printsolutions = null, findsolutions = null;
+
 		// Command Line Options parsing begins here
 		try {
 
 			Options options = new CommandLineOptions().getOptions();
-			CommandLine cmd = parser.parse(options,args);
+			CommandLine cmd = parser.parse(options, args);
 
-			if(cmd.hasOption("help"))	{
+			if (cmd.hasOption("help")) {
 				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp( "CSP-Solver", options, true );
-				System.exit(0);;
+				formatter.printHelp("CSP-Solver", options, true);
+				System.exit(0);
+				;
 			}
 			if (cmd.hasOption("search")) {
 				search = cmd.getOptionValue("search");
@@ -254,7 +218,8 @@ public class Solver {
 			if (cmd.hasOption("inputfile")) {
 				inputfile = cmd.getOptionValue("inputfile");
 			} else {
-				inputfile = "src/main/resources/4qc.xml";
+				System.err.println("XCSP 2.0 input file not specified");
+				System.exit(1);
 			}
 
 			if (cmd.hasOption("printsolutions")) {
@@ -264,35 +229,28 @@ public class Solver {
 			}
 
 			if (cmd.hasOption("solution")) {
-				solution = cmd.getOptionValue("solution");
+				findsolutions = cmd.getOptionValue("solution");
 			} else {
-				solution = "all";
+				findsolutions = "all";
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 
 		// Command Line options parsing Ends here
-
 		Solver cspsolver = new Solver();
-		cspsolver.parser = new InstanceParser();
-		cspsolver.parser.loadInstance(inputfile);
-		cspsolver.parser.parse(false);
+		cspsolver.setParser(new InstanceParser());
+		cspsolver.getParser().loadInstance(inputfile);
+		cspsolver.getParser().parse(false);
 
-		timer computetime = new timer();
+		// Preprocess and populate search Object
 		cspsolver.updatevars();
+		PState state = new PState(search, "Unspecified", heuristics, inputfile, findsolutions, "Unspecified",
+				printsolutions);
 
-		PState state = new PState(search,heuristics, inputfile);
-
-		new OHeuristics(heuristics, cspsolver.csp,cspsolver.parser);
-
-		computetime.Start();
-		cspsolver.init_algorithm(search, state, printsolutions, solution);
-		computetime.Stop();
-
-		System.out.println("\nTime: " + computetime.ElapsedTime() * 1000
-				+ " ms");
-		// cspsolver.debug();
-
+		// new
+		// OrderingHeuristics(state.getValueOrderingHeuristic(),state.getVariableOrderingHeuristics(),
+		// cspsolver.getCsp());
+		cspsolver.init_algorithm(state);
 	}
 }

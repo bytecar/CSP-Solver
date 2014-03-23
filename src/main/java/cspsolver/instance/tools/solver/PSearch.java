@@ -9,58 +9,141 @@ import cspsolver.instance.components.PVariable;
 import cspsolver.instance.tools.InstanceParser;
 
 public abstract class PSearch {
+
+	// State information
+	private PState state;
+	// Search related information
+	private boolean consistent;
+	private ArrayList<PVariable> currentPath;
+	private PInstance problem;
+	private ArrayList<Integer> assignments;
+	private int Solutions;
+	private int[][] current_domains;
+	private ArrayList<Stack<Integer>> futureForwardChecks;
+	private ArrayList<Stack<Integer>> pastForwardChecks;
+	private ArrayList<Stack<Stack<Integer>>> reductions;
+	private Stack<Integer> reduction;
+	private HashMap<Integer, ArrayList<Integer>> conf_set;
+	private InstanceParser parserRef;
+
 	
-	public PVariable[] current_path;
-	public PInstance cspsolve;
-	public boolean consistent;
-	public int[] assignment;
-	public int Solutions;
-	public int[][] current_domains;
-	Stack<Integer>[] future_fc;
-	Stack<Integer>[] past_fc;
-	Stack<Stack<Integer>>[] reductions;
-	Stack<Integer> reduction;
-	public HashMap<Integer, ArrayList<Integer>> conf_set;
-	public InstanceParser parserRef;
-		
+	public PState getState() {
+		return state;
+	}
+
+	public void setState(PState state) {
+		this.state = state;
+	}
 
 	public boolean isConsistent() {
 		return consistent;
-	}
-
-	public void unaryC(PState state, int i) {
-
-		for (int j = 0; j < this.current_domains[i].length; j++) {
-
-			this.assignment[0] = this.current_domains[i][j];
-
-			//this.setConsistent(this.Ucheck(i, state));
-
-			if (!(this.Ucheck(i, state))) {
-				this.current_domains[i] = this.remove(this.current_domains[i], this.current_domains[i][j]);
-				j--;
-			}
-		}
 	}
 
 	public void setConsistent(boolean consistent) {
 		this.consistent = consistent;
 	}
 
-	public PVariable[] getCurrent_path() {
-		return current_path;
+	public ArrayList<PVariable> getCurrentPath() {
+		return currentPath;
 	}
 
-	public PInstance getCspsolve() {
-		return cspsolve;
+	public void setCurrentPath(ArrayList<PVariable> currentPath) {
+		this.currentPath = currentPath;
 	}
 
-	public void setCspsolve(PInstance cspsolve) {
-		this.cspsolve = cspsolve;
+	public PInstance getProblem() {
+		return problem;
 	}
 
-	public int getcurrentpathlength() {
-		return current_path.length;
+	public void setProblem(PInstance problem) {
+		this.problem = problem;
+	}
+
+	public ArrayList<Integer> getAssignment() {
+		return assignments;
+	}
+
+	public void setAssignment(ArrayList<Integer> assignment) {
+		this.assignments = assignment;
+	}
+
+	public int getSolutions() {
+		return Solutions;
+	}
+
+	public void setSolutions(int solutions) {
+		Solutions = solutions;
+	}
+
+	public int[][] getCurrent_domains() {
+		return current_domains;
+	}
+
+	public void setCurrent_domains(int[][] current_domains) {
+		this.current_domains = current_domains;
+	}
+
+	public ArrayList<Stack<Integer>> getFutureForwardChecks() {
+		return futureForwardChecks;
+	}
+
+	public void setFutureForwardChecks(ArrayList<Stack<Integer>> futureForwardChecks) {
+		this.futureForwardChecks = futureForwardChecks;
+	}
+
+	public ArrayList<Stack<Integer>> getPastForwardChecks() {
+		return pastForwardChecks;
+	}
+
+	public void setPastForwardChecks(ArrayList<Stack<Integer>> pastForwardChecks) {
+		this.pastForwardChecks = pastForwardChecks;
+	}
+
+	public ArrayList<Stack<Stack<Integer>>> getReductions() {
+		return reductions;
+	}
+
+	public void setReductions(ArrayList<Stack<Stack<Integer>>> reductions) {
+		this.reductions = reductions;
+	}
+
+	public Stack<Integer> getReduction() {
+		return reduction;
+	}
+
+	public void setReduction(Stack<Integer> reduction) {
+		this.reduction = reduction;
+	}
+
+	public HashMap<Integer, ArrayList<Integer>> getConf_set() {
+		return conf_set;
+	}
+
+	public void setConf_set(HashMap<Integer, ArrayList<Integer>> conf_set) {
+		this.conf_set = conf_set;
+	}
+
+	public InstanceParser getParserRef() {
+		return parserRef;
+	}
+
+	public void setParserRef(InstanceParser parserRef) {
+		this.parserRef = parserRef;
+	}
+
+	public void unaryC(PState state, int i) {
+
+		for (int j = 0; j < this.current_domains[i].length; j++) {
+
+			this.assignments[0] = this.current_domains[i][j];
+
+			// this.setConsistent(this.Ucheck(i, state));
+
+			if (!(this.Ucheck(i, state))) {
+				this.current_domains[i] = this.remove(this.current_domains[i], this.current_domains[i][j]);
+				j--;
+			}
+		}
 	}
 
 	public int bcssp(String status, PState state, String print, String solns) {
@@ -74,7 +157,7 @@ public abstract class PSearch {
 		while (stat.equals("unknown")) {
 
 			if (this.isConsistent()) {
-				//dynamic ordering//current_path[i] = csp.vars[i];
+				// dynamic ordering//current_path[i] = csp.vars[i];
 				i = bt_label(i, this.isConsistent(), state);
 			} else {
 				i = bt_unlabel(i, this.isConsistent(), state);
@@ -82,22 +165,23 @@ public abstract class PSearch {
 
 			if (i > n) {
 				status = "solution";
-				//this.current_path[i].current_domain=null;
+				// this.current_path[i].current_domain=null;
 				i--;
 				Solutions++;
-				//return status;
+				// return status;
 
 				if (print.equals("p")) {
 					System.out.println();
-				
-					for(int l=0;l<cspsolve.OVarName.length;l++)	{						
-					for (int k = 1; k < this.current_path.length; k++) {						
-						if(cspsolve.OVarName[l].equals(this.current_path[k].getName()))
-						System.out.print("	" + this.current_path[k].current_domain[0] + " ");
+
+					for (int l = 0; l < cspsolve.OVarName.length; l++) {
+						for (int k = 1; k < this.current_path.length; k++) {
+							if (cspsolve.OVarName[l].equals(this.current_path[k].getName()))
+								System.out.print("	" + this.current_path[k].current_domain[0] + " ");
+						}
 					}
 				}
-				}	
-				this.current_path[i].current_domain = remove(this.current_path[i].current_domain, this.current_path[i].current_domain[0]);
+				this.current_path[i].current_domain = remove(this.current_path[i].current_domain,
+						this.current_path[i].current_domain[0]);
 
 				if (solns.equals("1")) {
 					return Solutions;
@@ -116,15 +200,18 @@ public abstract class PSearch {
 	}
 
 	public int bt_unlabel(int i, boolean consistent, PState state) {
-		//System.out.println("Backtrack");
+		// System.out.println("Backtrack");
 		(state.bt)++;
 		int h = i - 1;
 		this.current_path[i].current_domain = new int[this.current_domains[i].length];
-		//System.arraycopy(this.current_path[i].getDomain().getValues(), 0, this.current_path[i].current_domain, 0, this.current_path[i].getDomain().getValues().length);
-		System.arraycopy(this.current_domains[i], 0, this.current_path[i].current_domain, 0, this.current_domains[i].length);
+		// System.arraycopy(this.current_path[i].getDomain().getValues(), 0,
+		// this.current_path[i].current_domain, 0,
+		// this.current_path[i].getDomain().getValues().length);
+		System.arraycopy(this.current_domains[i], 0, this.current_path[i].current_domain, 0,
+				this.current_domains[i].length);
 
-		//if (this.current_path[h].getCurrent_domain() != null)
-		this.current_path[h].current_domain = remove(this.current_path[h].current_domain, this.assignment[h]);
+		// if (this.current_path[h].getCurrent_domain() != null)
+		this.current_path[h].current_domain = remove(this.current_path[h].current_domain, this.assignments[h]);
 
 		if (this.current_path[h].getCurrent_domain() != null) {
 			this.setConsistent(true);
@@ -135,48 +222,49 @@ public abstract class PSearch {
 
 	public int bt_label(int i, boolean consistent, PState state) {
 
-
 		this.setConsistent(false);
-
 
 		int k = 0;
 
 		while ((!this.isConsistent()) && (k < (this.current_path[i].currentdomlength()))) {
 			state.nv++;
 			this.setConsistent(true);
-			this.assignment[i] = this.current_path[i].current_domain[k];
-			//System.out.println("Level = " + i + "  Value = " + this.current_path[i].current_domain[k]);
+			this.assignments[i] = this.current_path[i].current_domain[k];
+			// System.out.println("Level = " + i + "  Value = " +
+			// this.current_path[i].current_domain[k]);
 
 			int h = 1;
 			while (this.isConsistent() && (h <= (i - 1))) {
 
-				//for(int p=0;p<this.current_path[h].getDomain().getValues().length;p++)    {
-				//this.current_path[h].assignment=this.current_path[h].domain.values[k];
+				// for(int
+				// p=0;p<this.current_path[h].getDomain().getValues().length;p++)
+				// {
+				// this.current_path[h].assignment=this.current_path[h].domain.values[k];
 
 				// this.setConsistent(Ucheck(i,state));
 
-				//this.setConsistent(true);
+				// this.setConsistent(true);
 
 				this.setConsistent(check(i, h, state));
 				if (!this.isConsistent()) {
-					this.current_path[i].current_domain = remove(this.current_path[i].current_domain, this.current_path[i].current_domain[k]);
+					this.current_path[i].current_domain = remove(this.current_path[i].current_domain,
+							this.current_path[i].current_domain[k]);
 					k--;
 				}
 
 				h++;
-				//}
+				// }
 
 			}
 
 			k++;
 
-			//if(i>this.cspsolve.vars.length)
-			//this.current_path[i].current_domain = remove(this.current_path[i].current_domain, this.current_path[i].current_domain[k]);
-
+			// if(i>this.cspsolve.vars.length)
+			// this.current_path[i].current_domain =
+			// remove(this.current_path[i].current_domain,
+			// this.current_path[i].current_domain[k]);
 
 		}
-
-
 
 		if (this.isConsistent()) {
 			return (i + 1);
@@ -194,13 +282,16 @@ public abstract class PSearch {
 				(state.CC)++;
 
 				if (this.current_path[i].constraint[c1].type.equals("supports")) {
-					//return (Uextension(this.current_path[i].constraint[c1].relation.getTuples(), this.assignment[0]));
-					return (this.current_path[i].constraint[c1].computeCostOf(this.assignment) == 1 ? false : true);
+					// return
+					// (Uextension(this.current_path[i].constraint[c1].relation.getTuples(),
+					// this.assignment[0]));
+					return (this.current_path[i].constraint[c1].computeCostOf(this.assignments) == 1 ? false : true);
 				} else if (this.current_path[i].constraint[c1].type.equals("conflicts")) {
-					return ((this.current_path[i].constraint[c1].computeCostOf(this.assignment) == 1 ? false : true));
+					return ((this.current_path[i].constraint[c1].computeCostOf(this.assignments) == 1 ? false : true));
 				} else {
-					//return (Uintensioncheckij(0, (PIntensionConstraint) this.current_path[i].constraint[c1], state));
-					return (this.current_path[i].constraint[c1].computeCostOf(this.assignment) == 1 ? false : true);
+					// return (Uintensioncheckij(0, (PIntensionConstraint)
+					// this.current_path[i].constraint[c1], state));
+					return (this.current_path[i].constraint[c1].computeCostOf(this.assignments) == 1 ? false : true);
 				}
 			}
 		}
@@ -231,8 +322,8 @@ public abstract class PSearch {
 		boolean status = false;
 		int[] temptuples = new int[2];
 
-		temptuples[0] = assignment[j];
-		temptuples[1] = assignment[i];
+		temptuples[0] = assignments[j];
+		temptuples[1] = assignments[i];
 
 		for (int c1 = 0; c1 < this.current_path[i].numConstraints; c1++) {
 			for (int c2 = 0; c2 < this.current_path[j].numConstraints; c2++) {
@@ -241,15 +332,20 @@ public abstract class PSearch {
 					(state.CC)++;
 
 					if (this.current_path[i].constraint[c1].type.equals("supports")) {
-						//return (exstension(this.current_path[i].constraint[c1].relation.getTuples(), this.assignment[i], this.assignment[j]));
+						// return
+						// (exstension(this.current_path[i].constraint[c1].relation.getTuples(),
+						// this.assignment[i], this.assignment[j]));
 						return (this.current_path[i].constraint[c1].computeCostOf(temptuples) == 1 ? false : true);
 
 					} else if (this.current_path[i].constraint[c1].type.equals("conflicts")) {
-						//return (!extension(this.current_path[i].constraint[c1].relation.getTuples(), this.assignment[i], this.assignment[j]));
+						// return
+						// (!extension(this.current_path[i].constraint[c1].relation.getTuples(),
+						// this.assignment[i], this.assignment[j]));
 						return ((this.current_path[i].constraint[c1].computeCostOf(temptuples) == 1 ? false : true));
 
 					} else {
-						//return (intensioncheckij(i, j, (PIntensionConstraint) this.current_path[i].constraint[c1], state));
+						// return (intensioncheckij(i, j, (PIntensionConstraint)
+						// this.current_path[i].constraint[c1], state));
 						return (this.current_path[i].constraint[c1].computeCostOf(temptuples) == 1 ? false : true);
 
 					}
@@ -258,9 +354,8 @@ public abstract class PSearch {
 		}
 		return true;
 	}
-	
-	public ArrayList<Integer> union_al(ArrayList<Integer> list1, ArrayList<Integer> list2) {
 
+	public ArrayList<Integer> union_al(ArrayList<Integer> list1, ArrayList<Integer> list2) {
 
 		ArrayList<Integer> union = new ArrayList<Integer>();
 
@@ -299,7 +394,7 @@ public abstract class PSearch {
 			return union;
 		}
 	}
-	
+
 	public ArrayList<Integer> union_al(ArrayList<Integer> list1, Stack<Integer> list2) {
 
 		ArrayList<Integer> union = new ArrayList<Integer>();
@@ -339,7 +434,7 @@ public abstract class PSearch {
 			return union;
 		}
 	}
-	
+
 	int[] listtoInt(ArrayList<Integer> list) {
 
 		int[] arr = new int[list.size()];
@@ -399,13 +494,13 @@ public abstract class PSearch {
 			return listtoInt(setdiff);
 		}
 	}
-	
+
 	boolean check_forward(int i, int j, PState state) {
 
 		reduction = new Stack<Integer>();
 
 		for (int k = 0; k < this.current_path[j].currentdomlength(); k++) {
-			this.assignment[j] = this.current_path[j].current_domain[k];
+			this.assignments[j] = this.current_path[j].current_domain[k];
 
 			if (!check(i, j, state)) {
 				reduction.push(this.current_path[j].current_domain[k]);
@@ -420,34 +515,34 @@ public abstract class PSearch {
 			past_fc[j].push(i);
 		}
 
-
 		if (this.current_path[j].current_domain != null) {
 			return (true);
 		} else {
 			return (false);
 		}
 	}
-	
+
 	void undo_reductions(int i) {
 
-		if(future_fc[i] != null)	{
-		for (Integer j : future_fc[i]) {
-			reduction = reductions[j].pop();
-			current_path[j].current_domain = listtoInt(union_al(intoToList(current_path[j].current_domain), reduction));
-			past_fc[j].pop();
-		}
+		if (future_fc[i] != null) {
+			for (Integer j : future_fc[i]) {
+				reduction = reductions[j].pop();
+				current_path[j].current_domain = listtoInt(union_al(intoToList(current_path[j].current_domain),
+						reduction));
+				past_fc[j].pop();
+			}
 
-		future_fc[i].clear();
+			future_fc[i].clear();
 		}
 	}
-	
+
 	void updated_current_domain(int i) {
-		current_path[i].current_domain= new int[current_domains[i].length];
+		current_path[i].current_domain = new int[current_domains[i].length];
 		System.arraycopy(current_domains[i], 0, current_path[i].current_domain, 0, current_domains[i].length);
-		//reduction = reductions[i].peek();
-		for(Stack<Integer> idx:reductions[i])	{
-			
-		current_path[i].current_domain = set_diff(current_path[i].current_domain, idx);
+		// reduction = reductions[i].peek();
+		for (Stack<Integer> idx : reductions[i]) {
+
+			current_path[i].current_domain = set_diff(current_path[i].current_domain, idx);
 		}
 	}
 }

@@ -33,23 +33,23 @@ public class PRelation {
 		return tuples;
 	}
 
-
 	public int getMaximalCost() {
 		return 1;
 	}
 
-	public PRelation(String name, int arity, int nbTuples, String semantics, int[][] tuples) {
+	public PRelation(String name, int arity, int nbTuples, String semantics,
+			int[][] tuples) {
 		this.name = name;
 		this.arity = arity;
 		this.nbTuples = nbTuples;
 		this.semantics = semantics;
 		this.tuples = tuples;
-		Arrays.sort(tuples,Toolkit.lexicographicComparator);
+		Arrays.sort(tuples, Toolkit.lexicographicComparator);
 	}
 
-
 	public int computeCostOf(int[] tuple) {
-		int position = Arrays.binarySearch(tuples, tuple, Toolkit.lexicographicComparator);
+		int position = Arrays.binarySearch(tuples, tuple,
+				Toolkit.lexicographicComparator);
 		if (semantics.equals(InstanceTokens.SUPPORTS))
 			return position >= 0 ? 0 : 1;
 		return position >= 0 ? 1 : 0;
@@ -57,7 +57,8 @@ public class PRelation {
 
 	public String toString() {
 		int displayLimit = 5;
-		String s = "  relation " + name + " with arity=" + arity + ", semantics=" + semantics + ", nbTuples=" + nbTuples + " : ";
+		String s = "  relation " + name + " with arity=" + arity
+				+ ", semantics=" + semantics + ", nbTuples=" + nbTuples + " : ";
 		for (int i = 0; i < Math.min(nbTuples, displayLimit); i++) {
 			s += "(";
 			for (int j = 0; j < arity; j++)
@@ -67,7 +68,8 @@ public class PRelation {
 		return s + (nbTuples > displayLimit ? "..." : "");
 	}
 
-	public boolean isSimilarTo(int arity, int nbTuples, String semantics, int[][] tuples) {
+	public boolean isSimilarTo(int arity, int nbTuples, String semantics,
+			int[][] tuples) {
 		if (this.arity != arity || this.nbTuples != nbTuples)
 			return false;
 		if (!this.semantics.equals(semantics))
@@ -79,17 +81,17 @@ public class PRelation {
 		return true;
 	}
 
-        public String toStrTuples() {
-            int displayLimit=5;
-            String s="";
-            for (int i = 0; i < Math.min(nbTuples, displayLimit); i++) {
+	public String toStrTuples() {
+		int displayLimit = 5;
+		String s = "";
+		for (int i = 0; i < Math.min(nbTuples, displayLimit); i++) {
 			s += "(";
 			for (int j = 0; j < arity; j++)
 				s += (tuples[i][j] + (j < arity - 1 ? "," : ""));
 			s += ") ";
 		}
 		return s + (nbTuples > displayLimit ? "..." : "");
-        }
+	}
 
 	public String getStringListOfTuples() {
 		StringBuffer s = new StringBuffer();

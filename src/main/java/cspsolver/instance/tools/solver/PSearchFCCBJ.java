@@ -20,8 +20,8 @@ public class PSearchFCCBJ extends PSearch	{
 	
 	int max_list2(int i)	{
 		
-		if(conf_set.get(i) != null && conf_set.get(i).size() !=0)
-			return(Collections.max(conf_set.get(i)));
+		if(getConf_set().get(i) != null && getConf_set().get(i).size() !=0)
+			return(Collections.max(getConf_set().get(i)));
 		else
 			return (i-1);
 	}
@@ -51,7 +51,7 @@ public class PSearchFCCBJ extends PSearch	{
 					this.current_path[i].current_domain = remove(this.current_path[i].current_domain, this.current_path[i].assignment[i]);
 					k--;
 					undo_reductions(i);
-					conf_set.put(i, this.union_al(conf_set.get(i), past_fc[j-1]));
+					getConf_set().put(i, this.union_al(getConf_set().get(i), past_fc[j-1]));
 				}
 				j++;
 			}
@@ -77,13 +77,13 @@ public class PSearchFCCBJ extends PSearch	{
 		temp=max_list(past_fc[i],i);
 		h=((h=max_list2(i))>temp?h:temp);
 		
-		conf_set.put(h,intoToList(remove(listtoInt(union_al2(conf_set.get(h),union_al(conf_set.get(i),past_fc[i]))),h)));
+		getConf_set().put(h,intoToList(remove(listtoInt(union_al2(getConf_set().get(h),union_al(getConf_set().get(i),past_fc[i]))),h)));
 		
 		for(int j=i;j>=h+1;j--)	{
 			ArrayList<Integer> temp1= new ArrayList<Integer>();
 			temp1.add(0);
 			
-			conf_set.put(j,temp1);
+			getConf_set().put(j,temp1);
 			undo_reductions(j);
 			updated_current_domain(j);		
 		}
