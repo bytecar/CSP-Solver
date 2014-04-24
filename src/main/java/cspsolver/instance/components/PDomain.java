@@ -1,14 +1,20 @@
 package cspsolver.instance.components;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import cspsolver.instance.InstanceTokens;
 
-public class PDomain {
+public class PDomain implements Serializable {
 	
 	private String name;
 	private int[] values;
 	
+	protected PVariable clone() throws CloneNotSupportedException {
+		return (PVariable)super.clone();
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -68,6 +74,26 @@ public class PDomain {
 		else
 			sb.append(previousValue);
 		return sb.toString();
+	}
+
+	public void remove(int c)	{
+		
+		int[] result = new int[values.length-1];
+		ArrayList<Integer> temp = new ArrayList<Integer>();
+		for(int i:values){
+			if(i!=c){
+				temp.add(i);
+			}
+		}
+		
+		for(int i=0;i<temp.size();i++){
+			result[i] = temp.get(i);
+		}
+		
+		this.values = result;
+	}
+	public void setValues(int[] values) {
+		this.values = values;
 	}
 
 	public boolean controlValueRanging(int min, int max) {

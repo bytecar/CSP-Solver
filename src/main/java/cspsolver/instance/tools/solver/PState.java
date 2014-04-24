@@ -103,7 +103,8 @@ public class PState {
 				+ valueOrderingHeuristic+"\nDynamicity: "+dynamicity+"\n\n");
 
 		sb.append("Constraint-Checks(CC): " + constraintChecks + "\nNodes-Visited(nv): " + nodesVisited + "\nBacktracks(bt): " + backtracks);
-		sb.append("\nTime: " + cpu_time + " ms");
+		
+		sb.append("\nTime: " + cpu_time*1000 + " ms");
 		return sb.toString();
 	}
 }

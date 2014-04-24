@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 
+import cspsolver.instance.components.PConstraint;
 import cspsolver.instance.components.PInstance;
 import cspsolver.instance.components.PVariable;
 import cspsolver.instance.tools.InstanceParser;
@@ -15,10 +16,10 @@ public abstract class PSearch {
 	// Search related information
 	private boolean consistent;
 	private ArrayList<PVariable> currentPath;
-	private PInstance problem;
-	private ArrayList<Integer> assignments;
-	private int Solutions;
-	private int[][] current_domains;
+	protected PInstance problem;
+	protected int[] assignments;
+	protected int Solutions;
+	protected ArrayList<int[]> current_domains;
 	private ArrayList<Stack<Integer>> futureForwardChecks;
 	private ArrayList<Stack<Integer>> pastForwardChecks;
 	private ArrayList<Stack<Stack<Integer>>> reductions;
@@ -59,11 +60,11 @@ public abstract class PSearch {
 		this.problem = problem;
 	}
 
-	public ArrayList<Integer> getAssignment() {
+	public int[] getAssignment() {
 		return assignments;
 	}
 
-	public void setAssignment(ArrayList<Integer> assignment) {
+	public void setAssignment(int[] assignment) {
 		this.assignments = assignment;
 	}
 
@@ -75,11 +76,11 @@ public abstract class PSearch {
 		Solutions = solutions;
 	}
 
-	public int[][] getCurrent_domains() {
+	public ArrayList<int[]> getCurrent_domains() {
 		return current_domains;
 	}
 
-	public void setCurrent_domains(int[][] current_domains) {
+	public void setCurrent_domains(ArrayList<int[]> current_domains) {
 		this.current_domains = current_domains;
 	}
 
@@ -133,27 +134,27 @@ public abstract class PSearch {
 
 	public void unaryC(PState state, int i) {
 
-		for (int j = 0; j < this.current_domains[i].length; j++) {
+		for (int j = 0; j < this.current_domains.get(i).length; j++) {
 
-			this.assignments[0] = this.current_domains[i][j];
-
-			// this.setConsistent(this.Ucheck(i, state));
+			this.assignments[0] = this.current_domains.get(i)[j];
 
 			if (!(this.Ucheck(i, state))) {
-				this.current_domains[i] = this.remove(this.current_domains[i], this.current_domains[i][j]);
+				this.current_domains.set(i, this.remove(this.current_domains.get(i), this.current_domains.get(i)[j]));
 				j--;
 			}
 		}
 	}
 
-	public int bcssp(String status, PState state, String print, String solns) {
+	public int bcssp(String status, PState state) {
 
 		String stat;
 		this.setConsistent(true);
 		stat = status;
 		int i = 1;
-		int n = this.getcurrentpathlength() - 1;
-
+		int n = this.getCurrentPath().size() - 1;
+		String print = state.getPrintsolutions();
+		String solns = state.getFindsolutions();
+		
 		while (stat.equals("unknown")) {
 
 			if (this.isConsistent()) {
@@ -173,15 +174,15 @@ public abstract class PSearch {
 				if (print.equals("p")) {
 					System.out.println();
 
-					for (int l = 0; l < cspsolve.OVarName.length; l++) {
-						for (int k = 1; k < this.current_path.length; k++) {
-							if (cspsolve.OVarName[l].equals(this.current_path[k].getName()))
-								System.out.print("	" + this.current_path[k].current_domain[0] + " ");
+					for (String var: problem.getOrderedVariableNames()) {
+						for (int k = 1; k < this.getCurrentPath().size(); k++) {
+							if (var.equals(this.getCurrentPath().get(k).getName()))
+								System.out.print("	" + this.getCurrentPath().get(k).getCurrent_domain().getValues()[0] + " ");
 						}
 					}
 				}
-				this.current_path[i].current_domain = remove(this.current_path[i].current_domain,
-						this.current_path[i].current_domain[0]);
+				
+				this.getCurrentPath().get(i).getCurrent_domain().remove(this.getCurrentPath().get(i).getCurrent_domain().getValues()[0]);
 
 				if (solns.equals("1")) {
 					return Solutions;
@@ -200,20 +201,15 @@ public abstract class PSearch {
 	}
 
 	public int bt_unlabel(int i, boolean consistent, PState state) {
-		// System.out.println("Backtrack");
-		(state.bt)++;
+		
+		state.setBacktracks(state.getBacktracks()+1);
 		int h = i - 1;
-		this.current_path[i].current_domain = new int[this.current_domains[i].length];
-		// System.arraycopy(this.current_path[i].getDomain().getValues(), 0,
-		// this.current_path[i].current_domain, 0,
-		// this.current_path[i].getDomain().getValues().length);
-		System.arraycopy(this.current_domains[i], 0, this.current_path[i].current_domain, 0,
-				this.current_domains[i].length);
+		
+		this.getCurrentPath().get(i).getCurrent_domain().setValues(this.current_domains.get(i));
 
-		// if (this.current_path[h].getCurrent_domain() != null)
-		this.current_path[h].current_domain = remove(this.current_path[h].current_domain, this.assignments[h]);
+		this.getCurrentPath().get(h).getCurrent_domain().setValues(remove(this.getCurrentPath().get(h).getCurrent_domain().getValues(), this.assignments[h]));
 
-		if (this.current_path[h].getCurrent_domain() != null) {
+		if (this.getCurrentPath().get(h).getCurrent_domain() != null) {
 			this.setConsistent(true);
 		}
 
@@ -226,44 +222,25 @@ public abstract class PSearch {
 
 		int k = 0;
 
-		while ((!this.isConsistent()) && (k < (this.current_path[i].currentdomlength()))) {
-			state.nv++;
+		while ((!this.isConsistent()) && (k < (this.getCurrentPath().get(i).getCurrent_domain().getValues().length ))) {
+			state.setNodesVisited(state.getNodesVisited()+1);
 			this.setConsistent(true);
-			this.assignments[i] = this.current_path[i].current_domain[k];
-			// System.out.println("Level = " + i + "  Value = " +
-			// this.current_path[i].current_domain[k]);
+			this.assignments[i] = this.getCurrentPath().get(i).getCurrent_domain().getValues()[k];
 
 			int h = 1;
 			while (this.isConsistent() && (h <= (i - 1))) {
 
-				// for(int
-				// p=0;p<this.current_path[h].getDomain().getValues().length;p++)
-				// {
-				// this.current_path[h].assignment=this.current_path[h].domain.values[k];
-
-				// this.setConsistent(Ucheck(i,state));
-
-				// this.setConsistent(true);
 
 				this.setConsistent(check(i, h, state));
 				if (!this.isConsistent()) {
-					this.current_path[i].current_domain = remove(this.current_path[i].current_domain,
-							this.current_path[i].current_domain[k]);
+					this.getCurrentPath().get(i).getCurrent_domain().setValues(remove(this.getCurrentPath().get(i).getCurrent_domain().getValues(), this.getCurrentPath().get(i).getCurrent_domain().getValues()[k]));
 					k--;
 				}
 
 				h++;
-				// }
-
 			}
 
 			k++;
-
-			// if(i>this.cspsolve.vars.length)
-			// this.current_path[i].current_domain =
-			// remove(this.current_path[i].current_domain,
-			// this.current_path[i].current_domain[k]);
-
 		}
 
 		if (this.isConsistent()) {
@@ -271,31 +248,6 @@ public abstract class PSearch {
 		} else {
 			return i;
 		}
-	}
-
-	public boolean Ucheck(int i, PState state) {
-		boolean status = false;
-
-		for (int c1 = 0; c1 < this.current_path[i].numConstraints; c1++) {
-			if (this.current_path[i].constraint[c1].getArity() == 1) {
-
-				(state.CC)++;
-
-				if (this.current_path[i].constraint[c1].type.equals("supports")) {
-					// return
-					// (Uextension(this.current_path[i].constraint[c1].relation.getTuples(),
-					// this.assignment[0]));
-					return (this.current_path[i].constraint[c1].computeCostOf(this.assignments) == 1 ? false : true);
-				} else if (this.current_path[i].constraint[c1].type.equals("conflicts")) {
-					return ((this.current_path[i].constraint[c1].computeCostOf(this.assignments) == 1 ? false : true));
-				} else {
-					// return (Uintensioncheckij(0, (PIntensionConstraint)
-					// this.current_path[i].constraint[c1], state));
-					return (this.current_path[i].constraint[c1].computeCostOf(this.assignments) == 1 ? false : true);
-				}
-			}
-		}
-		return (true);
 	}
 
 	public int[] remove(int[] symbols, int c) {
@@ -317,6 +269,26 @@ public abstract class PSearch {
 		}
 	}
 
+	public boolean Ucheck(int i, PState state) {
+
+		for (PConstraint cons: this.getCurrentPath().get(i).getConstraints()) {
+			if (cons.getArity() == 1) {
+
+				state.setConstraintChecks(state.getConstraintChecks()+1);
+
+				if (cons.getType().equals("supports")) {
+					return (cons.computeCostOf(this.assignments) == 1 ? false : true);
+				} else if (cons.getType().equals("conflicts")) {
+					return ((cons.computeCostOf(this.assignments) == 1 ? false : true));
+				} else {
+					return (cons.computeCostOf(this.assignments) == 1 ? false : true);
+				}
+			}
+		}
+		return (true);
+	}
+	
+	
 	public boolean check(int i, int j, PState state) {
 
 		boolean status = false;
@@ -325,28 +297,29 @@ public abstract class PSearch {
 		temptuples[0] = assignments[j];
 		temptuples[1] = assignments[i];
 
-		for (int c1 = 0; c1 < this.current_path[i].numConstraints; c1++) {
-			for (int c2 = 0; c2 < this.current_path[j].numConstraints; c2++) {
-				if (this.current_path[i].constraint[c1].getName().equals(this.current_path[j].constraint[c2].getName())) {
+		for (PConstraint cons1: this.getCurrentPath().get(i).getConstraints()) {
+			for (PConstraint cons2: this.getCurrentPath().get(j).getConstraints()) {
+				
+				if (cons1.getName().equals(cons2.getName())) {
 
-					(state.CC)++;
+					state.setConstraintChecks(state.getConstraintChecks()+1);
 
-					if (this.current_path[i].constraint[c1].type.equals("supports")) {
+					if (cons1.getType().equals("supports")) {
 						// return
 						// (exstension(this.current_path[i].constraint[c1].relation.getTuples(),
 						// this.assignment[i], this.assignment[j]));
-						return (this.current_path[i].constraint[c1].computeCostOf(temptuples) == 1 ? false : true);
+						return (cons1.computeCostOf(temptuples) == 1 ? false : true);
 
-					} else if (this.current_path[i].constraint[c1].type.equals("conflicts")) {
+					} else if (cons1.getType().equals("conflicts")) {
 						// return
 						// (!extension(this.current_path[i].constraint[c1].relation.getTuples(),
 						// this.assignment[i], this.assignment[j]));
-						return ((this.current_path[i].constraint[c1].computeCostOf(temptuples) == 1 ? false : true));
+						return ((cons1.computeCostOf(temptuples) == 1 ? false : true));
 
 					} else {
 						// return (intensioncheckij(i, j, (PIntensionConstraint)
 						// this.current_path[i].constraint[c1], state));
-						return (this.current_path[i].constraint[c1].computeCostOf(temptuples) == 1 ? false : true);
+						return (cons1.computeCostOf(temptuples) == 1 ? false : true);
 
 					}
 				}
@@ -495,54 +468,5 @@ public abstract class PSearch {
 		}
 	}
 
-	boolean check_forward(int i, int j, PState state) {
 
-		reduction = new Stack<Integer>();
-
-		for (int k = 0; k < this.current_path[j].currentdomlength(); k++) {
-			this.assignments[j] = this.current_path[j].current_domain[k];
-
-			if (!check(i, j, state)) {
-				reduction.push(this.current_path[j].current_domain[k]);
-			}
-		}
-
-		if (!reduction.isEmpty()) {
-
-			this.current_path[j].current_domain = set_diff(this.current_path[j].current_domain, reduction);
-			this.reductions[j].push(reduction);
-			future_fc[i].push(j);
-			past_fc[j].push(i);
-		}
-
-		if (this.current_path[j].current_domain != null) {
-			return (true);
-		} else {
-			return (false);
-		}
-	}
-
-	void undo_reductions(int i) {
-
-		if (future_fc[i] != null) {
-			for (Integer j : future_fc[i]) {
-				reduction = reductions[j].pop();
-				current_path[j].current_domain = listtoInt(union_al(intoToList(current_path[j].current_domain),
-						reduction));
-				past_fc[j].pop();
-			}
-
-			future_fc[i].clear();
-		}
-	}
-
-	void updated_current_domain(int i) {
-		current_path[i].current_domain = new int[current_domains[i].length];
-		System.arraycopy(current_domains[i], 0, current_path[i].current_domain, 0, current_domains[i].length);
-		// reduction = reductions[i].peek();
-		for (Stack<Integer> idx : reductions[i]) {
-
-			current_path[i].current_domain = set_diff(current_path[i].current_domain, idx);
-		}
-	}
 }

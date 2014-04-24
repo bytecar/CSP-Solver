@@ -7,6 +7,7 @@ public class PInstance {
     private String name;
     private ArrayList<PVariable> variables;
     private ArrayList<PConstraint> constraints;
+    private ArrayList<String> orderedVariableNames;
     
 	public String getName() {
 		return name;
@@ -25,6 +26,12 @@ public class PInstance {
 	}
 	public void setConstraints(ArrayList<PConstraint> constraints) {
 		this.constraints = constraints;
+	}
+	public ArrayList<String> getOrderedVariableNames() {
+		return orderedVariableNames;
+	}
+	public void setOrderedVariableNames(ArrayList<String> orderedVariableNames) {
+		this.orderedVariableNames = orderedVariableNames;
 	}
 			
 }
