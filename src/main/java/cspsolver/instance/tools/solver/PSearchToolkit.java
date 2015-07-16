@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 
+import org.junit.experimental.theories.internal.Assignments;
+
 import cspsolver.instance.components.PConstraint;
 import cspsolver.instance.components.PInstance;
 import cspsolver.instance.components.PVariable;
 import cspsolver.instance.tools.InstanceParser;
 
-public abstract class PSearch {
+public abstract class PSearchToolkit {
 
 	// State information
 	private PState state;
@@ -132,125 +134,20 @@ public abstract class PSearch {
 		this.parserRef = parserRef;
 	}
 
-	public void unaryC(PState state, int i) {
+	public static void unaryC(ArrayList<int[]> current_domains, PState state, int i, int[] assignments, ArrayList<PVariable> currentPath) {
 
-		for (int j = 0; j < this.current_domains.get(i).length; j++) {
+		for (int j = 0; j < current_domains.get(i).length; j++) {
 
-			this.assignments[0] = this.current_domains.get(i)[j];
+			assignments[0] = current_domains.get(i)[j];
 
-			if (!(this.Ucheck(i, state))) {
-				this.current_domains.set(i, this.remove(this.current_domains.get(i), this.current_domains.get(i)[j]));
+			if (!(Ucheck(i, state, currentPath, assignments))) {
+				current_domains.set(i, remove(current_domains.get(i), current_domains.get(i)[j]));
 				j--;
 			}
 		}
 	}
 
-	public int bcssp(String status, PState state) {
-
-		String stat;
-		this.setConsistent(true);
-		stat = status;
-		int i = 1;
-		int n = this.getCurrentPath().size() - 1;
-		String print = state.getPrintsolutions();
-		String solns = state.getFindsolutions();
-		
-		while (stat.equals("unknown")) {
-
-			if (this.isConsistent()) {
-				// dynamic ordering//current_path[i] = csp.vars[i];
-				i = bt_label(i, this.isConsistent(), state);
-			} else {
-				i = bt_unlabel(i, this.isConsistent(), state);
-			}
-
-			if (i > n) {
-				status = "solution";
-				// this.current_path[i].current_domain=null;
-				i--;
-				Solutions++;
-				// return status;
-
-				if (print.equals("p")) {
-					System.out.println();
-
-					for (String var: problem.getOrderedVariableNames()) {
-						for (int k = 1; k < this.getCurrentPath().size(); k++) {
-							if (var.equals(this.getCurrentPath().get(k).getName()))
-								System.out.print("	" + this.getCurrentPath().get(k).getCurrent_domain().getValues()[0] + " ");
-						}
-					}
-				}
-				
-				this.getCurrentPath().get(i).getCurrent_domain().remove(this.getCurrentPath().get(i).getCurrent_domain().getValues()[0]);
-
-				if (solns.equals("1")) {
-					return Solutions;
-				}
-
-				stat = "unknown";
-			} else {
-				if (i == 0) {
-					status = "impossible";
-					return Solutions;
-				}
-			}
-		}
-
-		return Solutions;
-	}
-
-	public int bt_unlabel(int i, boolean consistent, PState state) {
-		
-		state.setBacktracks(state.getBacktracks()+1);
-		int h = i - 1;
-		
-		this.getCurrentPath().get(i).getCurrent_domain().setValues(this.current_domains.get(i));
-
-		this.getCurrentPath().get(h).getCurrent_domain().setValues(remove(this.getCurrentPath().get(h).getCurrent_domain().getValues(), this.assignments[h]));
-
-		if (this.getCurrentPath().get(h).getCurrent_domain() != null) {
-			this.setConsistent(true);
-		}
-
-		return h;
-	}
-
-	public int bt_label(int i, boolean consistent, PState state) {
-
-		this.setConsistent(false);
-
-		int k = 0;
-
-		while ((!this.isConsistent()) && (k < (this.getCurrentPath().get(i).getCurrent_domain().getValues().length ))) {
-			state.setNodesVisited(state.getNodesVisited()+1);
-			this.setConsistent(true);
-			this.assignments[i] = this.getCurrentPath().get(i).getCurrent_domain().getValues()[k];
-
-			int h = 1;
-			while (this.isConsistent() && (h <= (i - 1))) {
-
-
-				this.setConsistent(check(i, h, state));
-				if (!this.isConsistent()) {
-					this.getCurrentPath().get(i).getCurrent_domain().setValues(remove(this.getCurrentPath().get(i).getCurrent_domain().getValues(), this.getCurrentPath().get(i).getCurrent_domain().getValues()[k]));
-					k--;
-				}
-
-				h++;
-			}
-
-			k++;
-		}
-
-		if (this.isConsistent()) {
-			return (i + 1);
-		} else {
-			return i;
-		}
-	}
-
-	public int[] remove(int[] symbols, int c) {
+	public static int[] remove(int[] symbols, int c) {
 		if (symbols == null) {
 			return null;
 		} else {
@@ -269,19 +166,19 @@ public abstract class PSearch {
 		}
 	}
 
-	public boolean Ucheck(int i, PState state) {
+	public static boolean Ucheck(int i, PState state, ArrayList<PVariable> currentPath, int[] assignments) {
 
-		for (PConstraint cons: this.getCurrentPath().get(i).getConstraints()) {
+		for (PConstraint cons: currentPath.get(i).getConstraints()) {
 			if (cons.getArity() == 1) {
 
 				state.setConstraintChecks(state.getConstraintChecks()+1);
 
 				if (cons.getType().equals("supports")) {
-					return (cons.computeCostOf(this.assignments) == 1 ? false : true);
+					return (cons.computeCostOf(assignments) == 1 ? false : true);
 				} else if (cons.getType().equals("conflicts")) {
-					return ((cons.computeCostOf(this.assignments) == 1 ? false : true));
+					return ((cons.computeCostOf(assignments) == 1 ? false : true));
 				} else {
-					return (cons.computeCostOf(this.assignments) == 1 ? false : true);
+					return (cons.computeCostOf(assignments) == 1 ? false : true);
 				}
 			}
 		}
@@ -289,7 +186,7 @@ public abstract class PSearch {
 	}
 	
 	
-	public boolean check(int i, int j, PState state) {
+	public static boolean check(int i, int j, PState state, int[] assignments, ArrayList<PVariable> currentPath) {
 
 		boolean status = false;
 		int[] temptuples = new int[2];
@@ -297,8 +194,8 @@ public abstract class PSearch {
 		temptuples[0] = assignments[j];
 		temptuples[1] = assignments[i];
 
-		for (PConstraint cons1: this.getCurrentPath().get(i).getConstraints()) {
-			for (PConstraint cons2: this.getCurrentPath().get(j).getConstraints()) {
+		for (PConstraint cons1: currentPath.get(i).getConstraints()) {
+			for (PConstraint cons2: currentPath.get(j).getConstraints()) {
 				
 				if (cons1.getName().equals(cons2.getName())) {
 
@@ -328,7 +225,7 @@ public abstract class PSearch {
 		return true;
 	}
 
-	public ArrayList<Integer> union_al(ArrayList<Integer> list1, ArrayList<Integer> list2) {
+	public static ArrayList<Integer> union_al(ArrayList<Integer> list1, ArrayList<Integer> list2) {
 
 		ArrayList<Integer> union = new ArrayList<Integer>();
 
@@ -368,7 +265,7 @@ public abstract class PSearch {
 		}
 	}
 
-	public ArrayList<Integer> union_al(ArrayList<Integer> list1, Stack<Integer> list2) {
+	public static ArrayList<Integer> union_al(ArrayList<Integer> list1, Stack<Integer> list2) {
 
 		ArrayList<Integer> union = new ArrayList<Integer>();
 
@@ -408,7 +305,7 @@ public abstract class PSearch {
 		}
 	}
 
-	int[] listtoInt(ArrayList<Integer> list) {
+	public static int[] listtoInt(ArrayList<Integer> list) {
 
 		int[] arr = new int[list.size()];
 		int j = 0;
@@ -423,7 +320,7 @@ public abstract class PSearch {
 		return arr;
 	}
 
-	ArrayList<Integer> intoToList(int[] list) {
+	public static ArrayList<Integer> intoToList(int[] list) {
 
 		ArrayList<Integer> arr = new ArrayList<Integer>(list.length);
 
@@ -433,7 +330,7 @@ public abstract class PSearch {
 		return arr;
 	}
 
-	int[] set_diff(int[] list1, Stack<Integer> list2) {
+	public static int[] set_diff(int[] list1, Stack<Integer> list2) {
 
 		ArrayList<Integer> setdiff = new ArrayList<Integer>();
 

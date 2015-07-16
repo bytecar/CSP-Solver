@@ -32,13 +32,11 @@ public class DocumentShuffler {
 		int[] values = new int[size];
 		for (int i = 0; i < values.length; i++)
 			values[i] = i;
-		int nbValues = values.length;
 		int[] t = new int[size];
 		for (int i = 0; i < size; i++) {
 			int j = random.nextInt(size - i);
 			t[i] = values[j];
 			values[j] = values[size - i - 1];
-			nbValues--;
 		}
 		// System.out.print("Permutation = ");
 		// for (int i = 0; i < t.length; i++)

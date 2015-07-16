@@ -8,8 +8,25 @@ import cspsolver.instance.components.PInstance;
 import cspsolver.instance.components.PVariable;
 
 
-public class PSearchCBJ extends PSearch	{
+public class PSearchCBJ extends PSearchToolkit	{
 	
+	private ArrayList<PVariable> currentPath;
+	// State information
+	private PState state;
+	// Search related information
+	private boolean consistent;
+	private PInstance problem;
+	private int[] assignments;
+	private int Solutions;
+	private ArrayList<int[]> current_domains;
+
+	public boolean isConsistent() {
+		return consistent;
+	}
+
+	public void setConsistent(boolean consistent) {
+		this.consistent = consistent;
+	}
 
 	public int bcssp(String status, PState state, String print, String solns) {
 

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class PVariable {
 
 	private String name;
-	private PDomain domain;
+	private PDomain initianDomain;
 	private ArrayList<PConstraint> constraints;
 	private ArrayList<PVariable> neighbors;
 	private PDomain current_domain;
@@ -52,11 +52,11 @@ public class PVariable {
 	}
 
 	public PDomain getDomain() {
-		return domain;
+		return initianDomain;
 	}
 
 	public void setDomain(PDomain domain) {
-		this.domain = domain;
+		this.initianDomain = domain;
 	}
 
 }

@@ -4,10 +4,11 @@ public class PState {
 
 	private String search;
 	private String valueOrderingHeuristic;
+	private String valueStaticDynamic;
 	private String variableOrderingHeuristics;
+	private String variableStaticDynamic;
 	private String cspname;
 	private String findsolutions;
-	private String dynamicity;
 	private String printsolutions;
 	
 	//Calculated
@@ -24,7 +25,6 @@ public class PState {
 		this.variableOrderingHeuristics = variableOrderingHeuristic;
 		this.cspname = cspname;
 		this.setFindsolutions(solutions);
-		this.dynamicity = dynamicity;
 		this.setPrintsolutions(printsolutions);
 		
 	}
@@ -51,12 +51,6 @@ public class PState {
 	}
 	public void setCspname(String cspname) {
 		this.cspname = cspname;
-	}
-	public String getDynamicity() {
-		return dynamicity;
-	}
-	public void setDynamicity(String dynamicity) {
-		this.dynamicity = dynamicity;
 	}
 	public double getCpu_time() {
 		return cpu_time;
@@ -100,11 +94,23 @@ public class PState {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("\nCSP(-f): " + cspname + "\nSearch(-a): " + search + "\nValue Ordering(-u): "
-				+ valueOrderingHeuristic+"\nDynamicity: "+dynamicity+"\n\n");
+				+ valueOrderingHeuristic+"\nDynamicity: \n\n");
 
 		sb.append("Constraint-Checks(CC): " + constraintChecks + "\nNodes-Visited(nv): " + nodesVisited + "\nBacktracks(bt): " + backtracks);
 		
 		sb.append("\nTime: " + cpu_time*1000 + " ms");
 		return sb.toString();
+	}
+	public String getValueStaticDynamic() {
+		return valueStaticDynamic;
+	}
+	public void setValueStaticDynamic(String valueStaticDynamic) {
+		this.valueStaticDynamic = valueStaticDynamic;
+	}
+	public String getVariableStaticDynamic() {
+		return variableStaticDynamic;
+	}
+	public void setVariableStaticDynamic(String variableStaticDynamic) {
+		this.variableStaticDynamic = variableStaticDynamic;
 	}
 }

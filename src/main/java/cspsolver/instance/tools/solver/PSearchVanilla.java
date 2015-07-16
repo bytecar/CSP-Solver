@@ -1,6 +1,19 @@
 package cspsolver.instance.tools.solver;
 
-public class PSearchVanilla extends PSearch {
+import java.util.ArrayList;
+
+import cspsolver.instance.components.PInstance;
+import cspsolver.instance.components.PVariable;
+
+public class PSearchVanilla implements BTSearch {
+
+	private ArrayList<PVariable> currentPath;
+	// Search related information
+	private boolean consistent;
+	private PInstance problem;
+	private int[] assignments;
+	private int Solutions;
+	private ArrayList<int[]> current_domains;
 
 	public int bcssp(String status, PState state) {
 
@@ -8,10 +21,10 @@ public class PSearchVanilla extends PSearch {
 		this.setConsistent(true);
 		stat = status;
 		int i = 1;
-		int n = this.getCurrentPath().size() - 1;
+		int n = this.currentPath.size() - 1;
 		String print = state.getPrintsolutions();
 		String solns = state.getFindsolutions();
-		
+
 		while (stat.equals("unknown")) {
 
 			if (this.isConsistent()) {
@@ -31,15 +44,17 @@ public class PSearchVanilla extends PSearch {
 				if (print.equals("p")) {
 					System.out.println();
 
-					for (String var: problem.getOrderedVariableNames()) {
-						for (int k = 1; k < this.getCurrentPath().size(); k++) {
-							if (var.equals(this.getCurrentPath().get(k).getName()))
-								System.out.print("	" + this.getCurrentPath().get(k).getCurrent_domain().getValues()[0] + " ");
+					for (String var : problem.getOrderedVariableNames()) {
+						for (int k = 1; k < this.currentPath.size(); k++) {
+							if (var.equals(this.currentPath.get(k).getName()))
+								System.out.print(
+										"	" + this.currentPath.get(k).getCurrent_domain().getValues()[0] + " ");
 						}
 					}
 				}
-				
-				this.getCurrentPath().get(i).getCurrent_domain().remove(this.getCurrentPath().get(i).getCurrent_domain().getValues()[0]);
+
+				this.currentPath.get(i).getCurrent_domain()
+						.remove(this.currentPath.get(i).getCurrent_domain().getValues()[0]);
 
 				if (solns.equals("1")) {
 					return Solutions;
@@ -58,15 +73,16 @@ public class PSearchVanilla extends PSearch {
 	}
 
 	public int bt_unlabel(int i, boolean consistent, PState state) {
-		
-		state.setBacktracks(state.getBacktracks()+1);
+
+		state.setBacktracks(state.getBacktracks() + 1);
 		int h = i - 1;
-		
-		this.getCurrentPath().get(i).getCurrent_domain().setValues(this.current_domains.get(i));
 
-		this.getCurrentPath().get(h).getCurrent_domain().setValues(remove(this.getCurrentPath().get(h).getCurrent_domain().getValues(), this.assignments[h]));
+		this.currentPath.get(i).getCurrent_domain().setValues(this.current_domains.get(i));
 
-		if (this.getCurrentPath().get(h).getCurrent_domain() != null) {
+		this.currentPath.get(h).getCurrent_domain()
+				.setValues(PSearchToolkit.remove(this.currentPath.get(h).getCurrent_domain().getValues(), this.assignments[h]));
+
+		if (this.currentPath.get(h).getCurrent_domain() != null) {
 			this.setConsistent(true);
 		}
 
@@ -79,18 +95,19 @@ public class PSearchVanilla extends PSearch {
 
 		int k = 0;
 
-		while ((!this.isConsistent()) && (k < (this.getCurrentPath().get(i).getCurrent_domain().getValues().length ))) {
-			state.setNodesVisited(state.getNodesVisited()+1);
+		while ((!this.isConsistent()) && (k < (this.currentPath.get(i).getCurrent_domain().getValues().length))) {
+			state.setNodesVisited(state.getNodesVisited() + 1);
 			this.setConsistent(true);
-			this.assignments[i] = this.getCurrentPath().get(i).getCurrent_domain().getValues()[k];
+			this.assignments[i] = this.currentPath.get(i).getCurrent_domain().getValues()[k];
 
 			int h = 1;
 			while (this.isConsistent() && (h <= (i - 1))) {
 
-
-				this.setConsistent(check(i, h, state));
+				this.setConsistent(PSearchToolkit.check(i, h, state, assignments, currentPath));
 				if (!this.isConsistent()) {
-					this.getCurrentPath().get(i).getCurrent_domain().setValues(remove(this.getCurrentPath().get(i).getCurrent_domain().getValues(), this.getCurrentPath().get(i).getCurrent_domain().getValues()[k]));
+					this.currentPath.get(i).getCurrent_domain()
+							.setValues(PSearchToolkit.remove(this.currentPath.get(i).getCurrent_domain().getValues(),
+									this.currentPath.get(i).getCurrent_domain().getValues()[k]));
 					k--;
 				}
 
@@ -105,6 +122,54 @@ public class PSearchVanilla extends PSearch {
 		} else {
 			return i;
 		}
+	}
+
+	@Override
+	public int getSolutions() {
+		return this.Solutions;
+	}
+
+	public ArrayList<PVariable> getCurrentPath() {
+		return currentPath;
+	}
+
+	public void setCurrentPath(ArrayList<PVariable> currentPath) {
+		this.currentPath = currentPath;
+	}
+
+	public PInstance getProblem() {
+		return problem;
+	}
+
+	public void setProblem(PInstance problem) {
+		this.problem = problem;
+	}
+
+	public int[] getAssignments() {
+		return assignments;
+	}
+
+	public void setAssignments(int[] assignments) {
+		this.assignments = assignments;
+	}
+
+	public ArrayList<int[]> getCurrent_domains() {
+		return current_domains;
+	}
+
+	public void setCurrent_domains(ArrayList<int[]> current_domains) {
+		this.current_domains = current_domains;
+	}
+
+	public void setSolutions(int solutions) {
+		Solutions = solutions;
+	}
+	public boolean isConsistent() {
+		return consistent;
+	}
+
+	public void setConsistent(boolean consistent) {
+		this.consistent = consistent;
 	}
 
 }

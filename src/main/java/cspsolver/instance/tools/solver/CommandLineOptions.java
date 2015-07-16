@@ -8,12 +8,13 @@ public class CommandLineOptions {
 	
 	public CommandLineOptions()	{
 		options = new Options();
-		options.addOption("a", "search", true, "Search: BT, CBJ, FC, FCCBJ");
-		options.addOption("u", "heuristics", true, "Variable Ordering Heuristic: LX(lexicographic), LD(least domain), DEG(max degree), DD(domain degree ratio), W(Minimum Width)");
-		options.addOption("s", "solution", true, "Solutions: \"1\" for single solution, \"all\" for all solutions");
-		options.addOption("f", "inputfile", true, "Path to file in XCSP 2.0 format");
-		options.addOption("p", "printsolutions", true, "Optional: Append \"-p p\" to print solutions, \"-p n\" not to print solutions");
-		options.addOption("h", "help", false, "Help for using Solver");
+		options.addOption("a", "search", true, "Search: BT, CBJ, FC, FCCBJ\n BT: Naive Backtracking\n CBJ:Constraint based Backjumping\nFC: Forward Checking\nFCCBJ: Hybrid of Forward Checking and Constraint based Backjumping, \nFCCBJ is used if not specified\n");
+		options.addOption("u", "heuristics", true, "Variable Ordering Heuristic: \nLX(lexicographic), \nLD(least domain), \nDEG(max degree), \nDD(domain degree ratio), \nW(Minimum Width), \nLX is used if not specified\n");
+		options.addOption("s", "solution", true, "Solutions: \n\"1\" for single solution, \n\"all\" for all solutions,\n prints all solution if not specified\n");
+		options.addOption("f", "inputfile", true, "Path to file in XCSP 2.0 format\n");
+		options.addOption("p", "printsolutions", true, "Optional: Append \n\"-p p\" to print solutions, \n\"-p n\" not to print solutions,\nprints solution if not specified\n");
+		options.addOption("h", "help", false, "Help for using Solver\n");
+		options.addOption("d", "debug", false, "CSP debug functionality,\ndisabled if not specified\n");
 	}
 
 	public Options getOptions() {

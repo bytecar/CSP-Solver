@@ -8,7 +8,7 @@ import java.util.Stack;
 import cspsolver.instance.components.PInstance;
 import cspsolver.instance.components.PVariable;
 
-public class PSearchFCCBJ extends PSearch	{
+public class PSearchFCCBJ extends PSearchToolkit	{
 	
 	int max_list(Stack<Integer> list,int i)	{
 		

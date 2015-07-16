@@ -1,6 +1,6 @@
 package cspsolver.instance.tools.solver;
 
-public class PSearchFC extends PSearch	{
+public class PSearchFC extends PSearchToolkit	{
 
 	int fc_label(int i, boolean status, PState state) {
 
