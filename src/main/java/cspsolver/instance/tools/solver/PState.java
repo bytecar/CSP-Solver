@@ -3,42 +3,34 @@ package cspsolver.instance.tools.solver;
 public class PState {
 
 	private String search;
-	private String valueOrderingHeuristic;
-	private String valueStaticDynamic;
 	private String variableOrderingHeuristics;
 	private String variableStaticDynamic;
 	private String cspname;
-	private String findsolutions;
-	private String printsolutions;
-	
-	//Calculated
+	private String printOptionName;
+	private String printOptionValue;
+
+	// Calculated
 	private double cpu_time;
 	private int constraintChecks;
 	private int nodesVisited;
 	private int backtracks;
-	
-	
-	public PState(String search, String valueOderingHeutistic, String variableOrderingHeuristic, String cspname,
-			String solutions, String dynamicity, String printsolutions )	{
+
+	public PState(String search, String variableOrderingHeuristic, String variableStaticDynamic, String cspname,
+			String solutions, String printsolutions) {
 		this.search = search;
-		this.valueOrderingHeuristic = valueOderingHeutistic;
 		this.variableOrderingHeuristics = variableOrderingHeuristic;
 		this.cspname = cspname;
+		this.variableStaticDynamic = variableStaticDynamic;
 		this.setFindsolutions(solutions);
 		this.setPrintsolutions(printsolutions);
-		
+
 	}
 	public String getSearch() {
 		return search;
 	}
+
 	public void setSearch(String search) {
 		this.search = search;
-	}
-	public String getValueOrderingHeuristic() {
-		return valueOrderingHeuristic;
-	}
-	public void setValueOrderingHeuristic(String valueOrderingHeuristic) {
-		this.valueOrderingHeuristic = valueOrderingHeuristic;
 	}
 	public String getVariableOrderingHeuristics() {
 		return variableOrderingHeuristics;
@@ -76,40 +68,38 @@ public class PState {
 	public void setBacktracks(int backtracks) {
 		this.backtracks = backtracks;
 	}
-	
+
 	public String getPrintsolutions() {
-		return printsolutions;
+		return printOptionValue;
 	}
 	public void setPrintsolutions(String printsolutions) {
-		this.printsolutions = printsolutions;
+		this.printOptionValue = printsolutions;
 	}
+
 	public String getFindsolutions() {
-		return findsolutions;
+		return printOptionName;
 	}
+
 	public void setFindsolutions(String findsolutions) {
-		this.findsolutions = findsolutions;
+		this.printOptionName = findsolutions;
 	}
 
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("\nCSP(-f): " + cspname + "\nSearch(-a): " + search + "\nValue Ordering(-u): "
-				+ valueOrderingHeuristic+"\nDynamicity: \n\n");
+		sb.append("\nCSP(-f): " + cspname + "\nSearch(-a): " + search);
 
-		sb.append("Constraint-Checks(CC): " + constraintChecks + "\nNodes-Visited(nv): " + nodesVisited + "\nBacktracks(bt): " + backtracks);
-		
-		sb.append("\nTime: " + cpu_time*1000 + " ms");
+		sb.append("\nConstraint-Checks(CC): " + constraintChecks + "\nNodes-Visited(nv): " + nodesVisited
+				+ "\nBacktracks(bt): " + backtracks + "\nVariable Ordering Dynamicity: " + variableStaticDynamic);
+
+		sb.append("\nTime: " + cpu_time * 1000 + " ms");
 		return sb.toString();
 	}
-	public String getValueStaticDynamic() {
-		return valueStaticDynamic;
-	}
-	public void setValueStaticDynamic(String valueStaticDynamic) {
-		this.valueStaticDynamic = valueStaticDynamic;
-	}
+
 	public String getVariableStaticDynamic() {
 		return variableStaticDynamic;
 	}
+
 	public void setVariableStaticDynamic(String variableStaticDynamic) {
 		this.variableStaticDynamic = variableStaticDynamic;
 	}

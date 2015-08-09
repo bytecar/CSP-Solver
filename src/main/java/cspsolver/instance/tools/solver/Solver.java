@@ -1,9 +1,6 @@
 package cspsolver.instance.tools.solver;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Stack;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -54,30 +51,9 @@ public class Solver {
 				}
 			}
 		}
-		lexicomp(parser);
-	}
-
-	public void lexicomp(InstanceParser parser) {
-
-		ArrayList<String> varNames = new ArrayList<String>();
-		ArrayList<String> orderedVarNames = new ArrayList<String>();
-
-		lexicomparator lexi = new lexicomparator(parser);
-
-		for (PVariable var : csp.getVariables()) {
-			varNames.add(var.getName());
-			orderedVarNames.add(var.getName());
-		}
-
-		Collections.sort(varNames, lexi);
-
-		ArrayList<PVariable> orderedVariables = new ArrayList<PVariable>();
-		for (String var : varNames) {
-			orderedVariables.add(parser.getMapOfVariables().get(var));
-
-		}
-
-		csp.setOrderedVariableNames(orderedVarNames);
+		csp.setMapOfConstraints(parser.getMapOfConstraints());
+		csp.setMapOfDomains(parser.getMapOfDomains());
+		csp.setMapOfVariables(parser.getMapOfVariables());
 	}
 
 	public void debug() {
@@ -141,10 +117,10 @@ public class Solver {
 		btSearch.setCurrentPath(new ArrayList<PVariable>());
 		btSearch.setCurrent_domains(new ArrayList<int[]>());
 
-		//btSearch.setFutureForwardChecks(new ArrayList<Stack<Integer>>());
-		//btSearch.setPastForwardChecks(new ArrayList<Stack<Integer>>());
-		//btSearch.setReductions(new ArrayList<Stack<Stack<Integer>>>());
-		//btSearch.setConf_set(new HashMap<Integer, ArrayList<Integer>>());
+		// btSearch.setFutureForwardChecks(new ArrayList<Stack<Integer>>());
+		// btSearch.setPastForwardChecks(new ArrayList<Stack<Integer>>());
+		// btSearch.setReductions(new ArrayList<Stack<Stack<Integer>>>());
+		// btSearch.setConf_set(new HashMap<Integer, ArrayList<Integer>>());
 		btSearch.setAssignments(new int[csp.getVariables().size() + 1]);
 
 		int i = 0;
@@ -152,24 +128,24 @@ public class Solver {
 		ArrayList<int[]> tmp1 = btSearch.getCurrent_domains();
 		tmp1.add(new int[1]);
 		btSearch.setCurrent_domains(tmp1);
-		//btSearch.getPastForwardChecks().add(new Stack<Integer>());
+		// btSearch.getPastForwardChecks().add(new Stack<Integer>());
 
 		for (PVariable variable : csp.getVariables()) {
 			btSearch.getCurrentPath().add(variable);
 
-			//btSearch.getFutureForwardChecks().add(new Stack<Integer>());
-			//btSearch.getPastForwardChecks().add(new Stack<Integer>());
-			//btSearch.getReductions().add(new Stack<Stack<Integer>>());
+			// btSearch.getFutureForwardChecks().add(new Stack<Integer>());
+			// btSearch.getPastForwardChecks().add(new Stack<Integer>());
+			// btSearch.getReductions().add(new Stack<Stack<Integer>>());
 
-			//ArrayList<Integer> cset = new ArrayList<Integer>();
-			//btSearch.getConf_set().put((i + 1), cset);
+			// ArrayList<Integer> cset = new ArrayList<Integer>();
+			// btSearch.getConf_set().put((i + 1), cset);
 
 			ArrayList<int[]> tmp = btSearch.getCurrent_domains();
 			tmp.add(variable.getDomain().getValues());
 			btSearch.setCurrent_domains(tmp);
 
 			btSearch.getCurrentPath().set(0, btSearch.getProblem().getVariables().get(0));
-			PSearchToolkit.unaryC(tmp, state, i + 1,btSearch.getAssignments(), btSearch.getCurrentPath() );
+			PSearchToolkit.unaryC(tmp, state, i + 1, btSearch.getAssignments(), btSearch.getCurrentPath());
 			btSearch.getCurrentPath().get(i + 1).setCurrent_domain(
 					(PDomain) SerializationUtils.clone(btSearch.getCurrentPath().get(i + 1).getDomain()));
 			btSearch.getCurrentPath().get(i + 1).getCurrent_domain()
@@ -178,9 +154,10 @@ public class Solver {
 			i++;
 		}
 
-		/*for (int k = 1; k <= csp.getVariables().size(); k++) {
-			btSearch.getPastForwardChecks().get(k).push(0);
-		}*/
+		/*
+		 * for (int k = 1; k <= csp.getVariables().size(); k++) {
+		 * btSearch.getPastForwardChecks().get(k).push(0); }
+		 */
 		return btSearch;
 	}
 
@@ -189,14 +166,14 @@ public class Solver {
 		String alg = state.getSearch();
 
 		if (alg.equalsIgnoreCase("CBJ")) {
-			//btSearch = new PSearchCBJ();
+			// btSearch = new PSearchCBJ();
 		} else if (alg.equalsIgnoreCase("FCCBJ")) {
-			//btSearch = new PSearchFCCBJ();
+			// btSearch = new PSearchFCCBJ();
 		} else if (alg.equalsIgnoreCase("BT")) {
 			PSearchVanilla search = new PSearchVanilla();
 			btSearch = init_btVanillaSearch(state, search);
 		} else if (alg.equalsIgnoreCase("FC")) {
-			//btSearch = new PSearchFC();
+			// btSearch = new PSearchFC();
 		}
 
 		timer computetime = new timer();
@@ -211,7 +188,8 @@ public class Solver {
 	public static void main(String[] args) {
 
 		CommandLineParser parser = new GnuParser();
-		String search = null, heuristics = null, inputfile = null, printsolutions = null, findsolutions = null;
+		String search = null, heuristics = null, inputfile = null, printsolutions = null, findsolutions = null,
+				heuristicsDynamicity = null;
 
 		// Command Line Options parsing begins here
 		Options options = new CommandLineOptions().getOptions();
@@ -236,46 +214,48 @@ public class Solver {
 		} else {
 			search = "FCCBJ";
 		}
-
 		if (cmd.hasOption("heuristics")) {
 			heuristics = cmd.getOptionValue("heuristics");
 		} else {
 			heuristics = "LX";
 		}
-
 		if (cmd.hasOption("inputfile")) {
 			inputfile = cmd.getOptionValue("inputfile");
 		} else {
 			System.err.println("XCSP 2.0 input file not specified");
 			System.exit(1);
 		}
-
 		if (cmd.hasOption("printsolutions")) {
 			printsolutions = cmd.getOptionValue("printsolutions");
 		} else {
 			printsolutions = "p";
 		}
-
 		if (cmd.hasOption("solution")) {
 			findsolutions = cmd.getOptionValue("solution");
 		} else {
 			findsolutions = "all";
 		}
-
-		// Command Line options parsing Ends here
+		if (cmd.hasOption("heurictics-dynamicity")) {
+			heuristicsDynamicity = cmd.getOptionValue("heurictics-dynamicity");
+		} else {
+			heuristicsDynamicity = "static";
+		}
 		Solver cspsolver = new Solver(new InstanceParser(), inputfile, false);
 
 		// Preprocess and populate search Object
 		if (cmd.hasOption("debug")) {
 			cspsolver.debug();
 		}
-		PState state = new PState(search, "Unspecified", heuristics, inputfile, findsolutions, "Unspecified",
-				printsolutions);
-
-		// new
-		// new OrderingHeuristics(state.getVariableOrderingHeuristics(),
-		// state.getValueOrderingHeuristic(),
-		// cspsolver.getCsp(), cspsolver.getParser());
+		PState state = new PState(search, heuristics, heuristicsDynamicity, inputfile, findsolutions, printsolutions);
+		cspsolver.getCsp().setOrderedVariableNames(new OrderingHeuristics(heuristics, cspsolver.getCsp()).runHeuristics());
 		cspsolver.init_algorithm(state);
+	}
+
+	public PInstance getCsp() {
+		return csp;
+	}
+
+	public void setCsp(PInstance csp) {
+		this.csp = csp;
 	}
 }

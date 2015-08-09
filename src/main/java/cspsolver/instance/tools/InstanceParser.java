@@ -32,7 +32,7 @@ import cspsolver.instance.components.Task;
 
 public class InstanceParser {
 
-    private static final String VERSION = "Version 0.5.1, March 2014 - By Kartik Vedalaveni (XCSP 2.0 Parser adapted from abscon) ";
+    private static final String VERSION = "Version 0.5.1, July 2015 - By Kartik Vedalaveni (XCSP 2.0 Parser adapted from abscon) ";
     private Document document;
     private String type;
     private String format;

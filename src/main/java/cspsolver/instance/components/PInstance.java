@@ -1,6 +1,7 @@
 package cspsolver.instance.components;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class PInstance {
 
@@ -8,7 +9,28 @@ public class PInstance {
     private ArrayList<PVariable> variables;
     private ArrayList<PConstraint> constraints;
     private ArrayList<String> orderedVariableNames;
+    private Map<String, PVariable> mapOfVariables;
+    private Map<String, PConstraint> mapOfConstraints;
+    private Map<String, PDomain> mapOfDomains;
     
+	public Map<String, PVariable> getMapOfVariables() {
+		return mapOfVariables;
+	}
+	public void setMapOfVariables(Map<String, PVariable> mapOfVariables) {
+		this.mapOfVariables = mapOfVariables;
+	}
+	public Map<String, PConstraint> getMapOfConstraints() {
+		return mapOfConstraints;
+	}
+	public void setMapOfConstraints(Map<String, PConstraint> mapOfConstraints) {
+		this.mapOfConstraints = mapOfConstraints;
+	}
+	public Map<String, PDomain> getMapOfDomains() {
+		return mapOfDomains;
+	}
+	public void setMapOfDomains(Map<String, PDomain> mapOfDomains) {
+		this.mapOfDomains = mapOfDomains;
+	}
 	public String getName() {
 		return name;
 	}

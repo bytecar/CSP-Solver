@@ -16,14 +16,13 @@ public class PSearchVanilla implements BTSearch {
 	private ArrayList<int[]> current_domains;
 
 	public int bcssp(String status, PState state) {
-
 		String stat;
 		this.setConsistent(true);
 		stat = status;
 		int i = 1;
 		int n = this.currentPath.size() - 1;
-		String print = state.getPrintsolutions();
-		String solns = state.getFindsolutions();
+		String printOptionName = state.getPrintsolutions();
+		String printOptionValue = state.getFindsolutions();
 
 		while (stat.equals("unknown")) {
 
@@ -41,14 +40,14 @@ public class PSearchVanilla implements BTSearch {
 				Solutions++;
 				// return status;
 
-				if (print.equals("p")) {
+				if (printOptionName.equals("p")) {
 					System.out.println();
 
 					for (String var : problem.getOrderedVariableNames()) {
 						for (int k = 1; k < this.currentPath.size(); k++) {
 							if (var.equals(this.currentPath.get(k).getName()))
 								System.out.print(
-										"	" + this.currentPath.get(k).getCurrent_domain().getValues()[0] + " ");
+										" " + this.currentPath.get(k).getCurrent_domain().getValues()[0] + " ");
 						}
 					}
 				}
@@ -56,10 +55,9 @@ public class PSearchVanilla implements BTSearch {
 				this.currentPath.get(i).getCurrent_domain()
 						.remove(this.currentPath.get(i).getCurrent_domain().getValues()[0]);
 
-				if (solns.equals("1")) {
+				if (printOptionValue.equals("1")) {
 					return Solutions;
 				}
-
 				stat = "unknown";
 			} else {
 				if (i == 0) {
@@ -79,8 +77,8 @@ public class PSearchVanilla implements BTSearch {
 
 		this.currentPath.get(i).getCurrent_domain().setValues(this.current_domains.get(i));
 
-		this.currentPath.get(h).getCurrent_domain()
-				.setValues(PSearchToolkit.remove(this.currentPath.get(h).getCurrent_domain().getValues(), this.assignments[h]));
+		this.currentPath.get(h).getCurrent_domain().setValues(
+				PSearchToolkit.remove(this.currentPath.get(h).getCurrent_domain().getValues(), this.assignments[h]));
 
 		if (this.currentPath.get(h).getCurrent_domain() != null) {
 			this.setConsistent(true);
@@ -90,11 +88,8 @@ public class PSearchVanilla implements BTSearch {
 	}
 
 	public int bt_label(int i, boolean consistent, PState state) {
-
 		this.setConsistent(false);
-
 		int k = 0;
-
 		while ((!this.isConsistent()) && (k < (this.currentPath.get(i).getCurrent_domain().getValues().length))) {
 			state.setNodesVisited(state.getNodesVisited() + 1);
 			this.setConsistent(true);
@@ -164,6 +159,7 @@ public class PSearchVanilla implements BTSearch {
 	public void setSolutions(int solutions) {
 		Solutions = solutions;
 	}
+
 	public boolean isConsistent() {
 		return consistent;
 	}
