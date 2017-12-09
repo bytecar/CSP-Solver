@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 
-import org.junit.experimental.theories.internal.Assignments;
-
 import cspsolver.instance.components.PConstraint;
 import cspsolver.instance.components.PInstance;
 import cspsolver.instance.components.PVariable;

@@ -1,25 +1,23 @@
-import static org.junit.Assert.*;
-
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import cspsolver.instance.tools.solver.Solver;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CSPBTTest {
 
 	OutputStream os;
 	PrintStream ps;
 	
-	@Before
+	/*@Before
 	public void setup()	{
 		os = new ByteArrayOutputStream(); 
 		ps = new PrintStream(os); 
 		System.setOut(ps); 
-	}
+	}*/
 
 	@Test
 	public void test3qc() {
