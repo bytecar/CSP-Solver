@@ -2,12 +2,7 @@ package cspsolver.instance.tools.solver;
 
 import java.util.ArrayList;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 import org.apache.commons.lang3.SerializationUtils;
 
 import cspsolver.instance.components.PConstraint;
@@ -115,7 +110,7 @@ public class Solver {
 
 		btSearch.setProblem(csp);
 		btSearch.setCurrentPath(new ArrayList<PVariable>());
-		btSearch.setCurrent_domains(new ArrayList<int[]>());
+		btSearch.setCurrent_domains(new ArrayList<PDomain>());
 
 		// btSearch.setFutureForwardChecks(new ArrayList<Stack<Integer>>());
 		// btSearch.setPastForwardChecks(new ArrayList<Stack<Integer>>());
@@ -125,8 +120,9 @@ public class Solver {
 
 		int i = 0;
 		btSearch.getCurrentPath().add(new PVariable("temp", new PDomain("temp", new int[2])));
-		ArrayList<int[]> tmp1 = btSearch.getCurrent_domains();
-		tmp1.add(new int[1]);
+		ArrayList<PDomain> tmp1 = btSearch.getCurrent_domains();
+		PDomain tmpDom = new PDomain("root", new int[1]);
+		tmp1.add(tmpDom);
 		btSearch.setCurrent_domains(tmp1);
 		// btSearch.getPastForwardChecks().add(new Stack<Integer>());
 
@@ -140,16 +136,16 @@ public class Solver {
 			// ArrayList<Integer> cset = new ArrayList<Integer>();
 			// btSearch.getConf_set().put((i + 1), cset);
 
-			ArrayList<int[]> tmp = btSearch.getCurrent_domains();
-			tmp.add(variable.getDomain().getValues());
+			ArrayList<PDomain> tmp = btSearch.getCurrent_domains();
+			tmp.add(variable.getDomain());
 			btSearch.setCurrent_domains(tmp);
 
 			btSearch.getCurrentPath().set(0, btSearch.getProblem().getVariables().get(0));
-			PSearchToolkit.unaryC(tmp, state, i + 1, btSearch.getAssignments(), btSearch.getCurrentPath());
+			PSearchBase.unaryC(tmp, state, i + 1, btSearch.getAssignments(), btSearch.getCurrentPath());
 			btSearch.getCurrentPath().get(i + 1).setCurrent_domain(
 					(PDomain) SerializationUtils.clone(btSearch.getCurrentPath().get(i + 1).getDomain()));
 			btSearch.getCurrentPath().get(i + 1).getCurrent_domain()
-					.setValues(btSearch.getCurrent_domains().get(i + 1));
+					.setValues(btSearch.getCurrent_domains().get(i + 1).getValues());
 
 			i++;
 		}
@@ -187,7 +183,7 @@ public class Solver {
 
 	public static void main(String[] args) {
 
-		CommandLineParser parser = new GnuParser();
+		CommandLineParser parser = new DefaultParser();
 		String search = null, heuristics = null, inputfile = null, printsolutions = null, findsolutions = null,
 				heuristicsDynamicity = null;
 
@@ -219,14 +215,14 @@ public class Solver {
 		} else {
 			heuristics = "LX";
 		}
-		if (cmd.hasOption("inputfile")) {
-			inputfile = cmd.getOptionValue("inputfile");
+		if (cmd.hasOption("input-file")) {
+			inputfile = cmd.getOptionValue("input-file");
 		} else {
 			System.err.println("XCSP 2.0 input file not specified");
 			System.exit(1);
 		}
-		if (cmd.hasOption("printsolutions")) {
-			printsolutions = cmd.getOptionValue("printsolutions");
+		if (cmd.hasOption("print-solutions")) {
+			printsolutions = cmd.getOptionValue("print-solutions");
 		} else {
 			printsolutions = "p";
 		}

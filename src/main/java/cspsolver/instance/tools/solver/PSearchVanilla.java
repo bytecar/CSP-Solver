@@ -2,8 +2,11 @@ package cspsolver.instance.tools.solver;
 
 import java.util.ArrayList;
 
+import cspsolver.instance.components.PDomain;
 import cspsolver.instance.components.PInstance;
 import cspsolver.instance.components.PVariable;
+
+import static cspsolver.instance.tools.solver.PSearchBase.remove;
 
 public class PSearchVanilla implements BTSearch {
 
@@ -13,7 +16,7 @@ public class PSearchVanilla implements BTSearch {
 	private PInstance problem;
 	private int[] assignments;
 	private int Solutions;
-	private ArrayList<int[]> current_domains;
+	private ArrayList<PDomain> current_domains;
 
 	public int bcssp(String status, PState state) {
 		String stat;
@@ -75,11 +78,8 @@ public class PSearchVanilla implements BTSearch {
 		state.setBacktracks(state.getBacktracks() + 1);
 		int h = i - 1;
 
-		this.currentPath.get(i).getCurrent_domain().setValues(this.current_domains.get(i));
-
-		this.currentPath.get(h).getCurrent_domain().setValues(
-				PSearchToolkit.remove(this.currentPath.get(h).getCurrent_domain().getValues(), this.assignments[h]));
-
+		this.currentPath.get(i).getCurrent_domain().setValues(this.current_domains.get(i).getValues());
+		remove(this.currentPath.get(h).getCurrent_domain(), this.assignments[h]);
 		if (this.currentPath.get(h).getCurrent_domain() != null) {
 			this.setConsistent(true);
 		}
@@ -98,11 +98,10 @@ public class PSearchVanilla implements BTSearch {
 			int h = 1;
 			while (this.isConsistent() && (h <= (i - 1))) {
 
-				this.setConsistent(PSearchToolkit.check(i, h, state, assignments, currentPath));
+				this.setConsistent(PSearchBase.check(i, h, state, assignments, currentPath));
 				if (!this.isConsistent()) {
-					this.currentPath.get(i).getCurrent_domain()
-							.setValues(PSearchToolkit.remove(this.currentPath.get(i).getCurrent_domain().getValues(),
-									this.currentPath.get(i).getCurrent_domain().getValues()[k]));
+					remove(this.currentPath.get(i).getCurrent_domain(),
+									this.currentPath.get(i).getCurrent_domain().getValues()[k]);
 					k--;
 				}
 
@@ -148,11 +147,11 @@ public class PSearchVanilla implements BTSearch {
 		this.assignments = assignments;
 	}
 
-	public ArrayList<int[]> getCurrent_domains() {
+	public ArrayList<PDomain> getCurrent_domains() {
 		return current_domains;
 	}
 
-	public void setCurrent_domains(ArrayList<int[]> current_domains) {
+	public void setCurrent_domains(ArrayList<PDomain> current_domains) {
 		this.current_domains = current_domains;
 	}
 

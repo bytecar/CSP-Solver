@@ -2,13 +2,12 @@ package cspsolver.instance.tools.solver;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 
 import cspsolver.instance.components.PInstance;
 import cspsolver.instance.components.PVariable;
 
 
-public class PSearchCBJ extends PSearchToolkit	{
+public class PSearchCBJ extends PSearchBase {
 	
 	private ArrayList<PVariable> currentPath;
 	// State information
@@ -36,7 +35,7 @@ public class PSearchCBJ extends PSearchToolkit	{
 		int i = 1;
 		int p = 0;
 		ArrayList<Integer> ptmp = new ArrayList<Integer>();
-		int n = this.getcurrentpathlength() - 1;
+		/*int n = this.getcurrentpathlength() - 1;
 
 		
 		while (stat.equals("unknown")) {
@@ -185,7 +184,7 @@ public class PSearchCBJ extends PSearchToolkit	{
 
 		}
 
-
+*/
 
 		if (this.isConsistent()) {
 			return (i + 1);
